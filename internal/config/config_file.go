@@ -132,6 +132,7 @@ func DefaultFileConfig() FileConfig {
 	uploadMaxFileBytes := DefaultUploadMaxFileBytes
 	uploadMaxTotalBytes := DefaultUploadMaxTotalBytes
 	maxRedirects := -1
+	trustLoopbackProxy := false
 	attachEnabled := false
 	activityEnabled := true
 	activitySessionIdleSec := 1800
@@ -194,6 +195,7 @@ func DefaultFileConfig() FileConfig {
 			UploadMaxFileBytes:     &uploadMaxFileBytes,
 			UploadMaxTotalBytes:    &uploadMaxTotalBytes,
 			MaxRedirects:           &maxRedirects,
+			TrustLoopbackProxy:     &trustLoopbackProxy,
 			Attach: AttachConfig{
 				Enabled:      &attachEnabled,
 				AllowHosts:   []string{"127.0.0.1", "localhost", "::1"},

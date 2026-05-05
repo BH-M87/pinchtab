@@ -15,8 +15,38 @@ import (
 
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
+	"github.com/pinchtab/pinchtab/internal/config"
 	"github.com/pinchtab/pinchtab/internal/netguard"
 )
+
+// loopbackProxyCIDRs are the CIDRs implicitly trusted as legitimate proxy hops
+// when security.trustLoopbackProxy is enabled. Covers IPv4 and IPv6 loopback.
+var loopbackProxyCIDRs = func() []*net.IPNet {
+	cidrs := make([]*net.IPNet, 0, 2)
+	for _, s := range []string{"127.0.0.0/8", "::1/128"} {
+		if _, n, err := net.ParseCIDR(s); err == nil {
+			cidrs = append(cidrs, n)
+		}
+	}
+	return cidrs
+}()
+
+// buildNavigateTrustedProxyCIDRs returns the list of trusted CIDRs used by the
+// runtime navigation guard when checking the response RemoteIPAddress. It
+// merges security.trustedProxyCIDRs with the implicit loopback list when
+// security.trustLoopbackProxy is enabled, giving users a one-flag escape from
+// the SSRF guard tripping on a local HTTP/SOCKS proxy hop (e.g. macOS system
+// proxy on 127.0.0.1) without having to hand-craft a CIDR list.
+func buildNavigateTrustedProxyCIDRs(cfg *config.RuntimeConfig) []*net.IPNet {
+	if cfg == nil {
+		return nil
+	}
+	trusted := parseCIDRs(cfg.TrustedProxyCIDRs)
+	if cfg.TrustLoopbackProxy {
+		trusted = append(trusted, loopbackProxyCIDRs...)
+	}
+	return trusted
+}
 
 const maxNavigateURLLen = 8 << 10
 

@@ -242,6 +242,8 @@ func getSecurityField(s *SecurityConfig, field string) (string, error) {
 		return strings.Join(s.TrustedProxyCIDRs, ","), nil
 	case "trustedResolveCIDRs":
 		return strings.Join(s.TrustedResolveCIDRs, ","), nil
+	case "trustLoopbackProxy":
+		return formatBoolPtr(s.TrustLoopbackProxy), nil
 	default:
 		return "", fmt.Errorf("unknown field security.%s", field)
 	}

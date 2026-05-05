@@ -32,7 +32,7 @@ func (h *Handlers) HandleTab(w http.ResponseWriter, r *http.Request) {
 	case tabActionNew:
 		var target *validatedNavigateTarget
 		trustedResolveCIDRs := parseCIDRs(h.Config.TrustedResolveCIDRs)
-		trustedCIDRs := parseCIDRs(h.Config.TrustedProxyCIDRs)
+		trustedCIDRs := buildNavigateTrustedProxyCIDRs(h.Config)
 		if req.URL != "" && req.URL != "about:blank" {
 			if err := validateNavigateURL(req.URL); err != nil {
 				httpx.Error(w, 400, err)

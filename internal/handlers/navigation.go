@@ -109,7 +109,7 @@ func (h *Handlers) HandleNavigate(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, http.StatusForbidden, err)
 		return
 	}
-	trustedCIDRs := parseCIDRs(h.Config.TrustedProxyCIDRs)
+	trustedCIDRs := buildNavigateTrustedProxyCIDRs(h.Config)
 	h.recordNavigateRequest(r, req.TabID, req.URL)
 
 	// --- Lite engine fast path ---

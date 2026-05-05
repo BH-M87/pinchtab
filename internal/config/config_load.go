@@ -305,6 +305,9 @@ func applyFileConfig(cfg *RuntimeConfig, fc *FileConfig) {
 	cfg.AttachAllowSchemes = append([]string(nil), fc.Security.Attach.AllowSchemes...)
 	cfg.TrustedProxyCIDRs = append([]string(nil), fc.Security.TrustedProxyCIDRs...)
 	cfg.TrustedResolveCIDRs = append([]string(nil), fc.Security.TrustedResolveCIDRs...)
+	if fc.Security.TrustLoopbackProxy != nil {
+		cfg.TrustLoopbackProxy = *fc.Security.TrustLoopbackProxy
+	}
 	// IDPI – copy the whole struct; individual fields have safe zero-value defaults.
 	cfg.IDPI = fc.Security.IDPI
 	cfg.AllowedDomains = effectiveSecurityAllowedDomains(fc.Security)

@@ -110,6 +110,7 @@ func (fc FileConfig) MarshalJSON() ([]byte, error) {
 			MaxRedirects:           fc.Security.MaxRedirects,
 			TrustedProxyCIDRs:      copyStringSlice(fc.Security.TrustedProxyCIDRs),
 			TrustedResolveCIDRs:    copyStringSlice(fc.Security.TrustedResolveCIDRs),
+			TrustLoopbackProxy:     fc.Security.TrustLoopbackProxy,
 			Attach: attachJSON{
 				Enabled:      fc.Security.Attach.Enabled,
 				AllowHosts:   copyStringSlice(fc.Security.Attach.AllowHosts),
@@ -262,6 +263,7 @@ func FileConfigFromRuntime(cfg *RuntimeConfig) FileConfig {
 	uploadMaxFileBytes := cfg.EffectiveUploadMaxFileBytes()
 	uploadMaxTotalBytes := cfg.EffectiveUploadMaxTotalBytes()
 	maxRedirects := cfg.MaxRedirects
+	trustLoopbackProxy := cfg.TrustLoopbackProxy
 	attachEnabled := cfg.AttachEnabled
 	start := cfg.InstancePortStart
 	end := cfg.InstancePortEnd
@@ -361,6 +363,7 @@ func FileConfigFromRuntime(cfg *RuntimeConfig) FileConfig {
 			MaxRedirects:           &maxRedirects,
 			TrustedProxyCIDRs:      append([]string(nil), cfg.TrustedProxyCIDRs...),
 			TrustedResolveCIDRs:    append([]string(nil), cfg.TrustedResolveCIDRs...),
+			TrustLoopbackProxy:     &trustLoopbackProxy,
 			Attach: AttachConfig{
 				Enabled:      &attachEnabled,
 				AllowHosts:   append([]string(nil), cfg.AttachAllowHosts...),

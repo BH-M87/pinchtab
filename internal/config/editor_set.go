@@ -384,6 +384,8 @@ func setSecurityField(s *SecurityConfig, field, value string) error {
 		s.AllowNetworkIntercept = &b
 	case "enableActionGuards":
 		s.EnableActionGuards = &b
+	case "trustLoopbackProxy":
+		s.TrustLoopbackProxy = &b
 	default:
 		return fmt.Errorf("unknown field security.%s", field)
 	}
