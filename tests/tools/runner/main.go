@@ -24,6 +24,8 @@ func run(argv []string, stdout, stderr io.Writer) int {
 		return e2e.Run(argv[1:], stdout, stderr)
 	case "bench":
 		return bench.Run(argv[1:], stdout, stderr)
+	case "browserbench":
+		return bench.RunBrowserBench(argv[1:], stdout, stderr)
 	case "verify-step", "record-step", "step-end":
 		return bench.Run(argv, stdout, stderr)
 	case "opt":
@@ -41,6 +43,7 @@ func run(argv []string, stdout, stderr io.Writer) int {
 		_, _ = fmt.Fprintln(stderr, "Use one of:")
 		_, _ = fmt.Fprintln(stderr, "  runner e2e --suite basic")
 		_, _ = fmt.Fprintln(stderr, "  runner bench --lane pinchtab")
+		_, _ = fmt.Fprintln(stderr, "  runner browserbench --tasks 5")
 		_, _ = fmt.Fprintln(stderr, "  runner --lane pinchtab")
 		_, _ = fmt.Fprintln(stderr, "  runner step-end ...")
 		_, _ = fmt.Fprintln(stderr, "  runner opt merge-reports ...")

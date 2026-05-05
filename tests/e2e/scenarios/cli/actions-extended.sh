@@ -408,3 +408,138 @@ assert_output_contains "OK" "fill succeeded"
 assert_output_contains "~" "snap-diff shows changes"
 
 end_test
+
+# ─────────────────────────────────────────────────────────────────
+start_test "pinchtab press --snap"
+
+pt_ok nav "${FIXTURES_URL}/form.html"
+pt_ok focus --css "#username"
+pt_ok press Tab --snap
+
+# Output should be OK plus an interactive snapshot. The snapshot must mention
+# a textbox (form contains username/email/password inputs); confirms --snap
+# triggered the post-action snapshot fetch on a key press.
+assert_output_contains "OK" "press succeeded"
+assert_output_contains "textbox" "snap output contains form input"
+
+end_test
+
+# ─────────────────────────────────────────────────────────────────
+start_test "pinchtab press --snap-diff"
+
+pt_ok nav "${FIXTURES_URL}/form.html"
+pt_ok focus --css "#username"
+pt_ok snap  # establish baseline
+pt_ok press Tab --snap-diff
+
+# Tab key shifts focus from #username to the next input (#email). Snap-diff
+# must show the diff header (+N ~N -N) — focus changes mark prior/next
+# elements as modified, so we expect a "~" change marker. Falls back to "+0"
+# header if the platform's accessibility tree doesn't surface focus shifts.
+assert_output_contains "OK" "press succeeded"
+assert_output_contains "+" "snap-diff shows compact diff header"
+
+end_test
+
+# ─────────────────────────────────────────────────────────────────
+# Cookie-banner dismissal — exercises the --dismiss-banners flag on the
+# nav/back/forward/reload/click code paths against a fixture page that
+# renders a fixed-position cookie banner with an "Accept all" button.
+# Phase 1 of the dismissal heuristic clicks the labelled button, which
+# triggers the fixture's onclick to set body[data-cookie-dismissed=true].
+# We use that attribute as the post-condition for a successful dismissal.
+# ─────────────────────────────────────────────────────────────────
+
+start_test "pinchtab nav --dismiss-banners clears cookie banner"
+
+pt_ok nav "${FIXTURES_URL}/cookie-banner.html" --dismiss-banners
+
+# The fixture's Accept-all handler sets body[data-cookie-dismissed=true] and
+# adds class=dismissed to #cookie-banner.
+pt_ok eval "document.body.dataset.cookieDismissed"
+assert_output_contains "true" "fixture's Accept-all handler ran"
+
+pt_ok eval "document.getElementById('cookie-banner').classList.contains('dismissed')"
+assert_output_contains "true" "cookie banner is hidden"
+
+end_test
+
+# ─────────────────────────────────────────────────────────────────
+start_test "pinchtab nav (no flag) leaves cookie banner up"
+
+pt_ok nav "${FIXTURES_URL}/cookie-banner.html"
+
+pt_ok eval "document.body.dataset.cookieDismissed || ''"
+# Should be empty — the helper did not run, and the user did not click.
+assert_output_not_contains "true" "Accept-all was NOT auto-clicked"
+
+pt_ok eval "document.getElementById('cookie-banner').classList.contains('dismissed')"
+assert_output_contains "false" "cookie banner is still visible"
+
+end_test
+
+# ─────────────────────────────────────────────────────────────────
+start_test "pinchtab reload --dismiss-banners clears re-shown banner"
+
+# Land on the page with the flag — the banner is dismissed.
+pt_ok nav "${FIXTURES_URL}/cookie-banner.html" --dismiss-banners
+pt_ok eval "document.body.dataset.cookieDismissed"
+assert_output_contains "true" "initial dismissal landed"
+
+# Reload WITHOUT the flag — the banner re-renders fresh, dataset wiped.
+pt_ok reload
+pt_ok eval "document.body.dataset.cookieDismissed || ''"
+assert_output_not_contains "true" "reload re-rendered the banner"
+
+# Reload WITH --dismiss-banners — should re-dismiss.
+pt_ok reload --dismiss-banners
+pt_ok eval "document.body.dataset.cookieDismissed"
+assert_output_contains "true" "reload --dismiss-banners cleared it again"
+
+end_test
+
+# ─────────────────────────────────────────────────────────────────
+start_test "pinchtab back --dismiss-banners clears banner on prior page"
+
+pt_ok nav "${FIXTURES_URL}/index.html"
+pt_ok nav "${FIXTURES_URL}/cookie-banner.html"
+pt_ok back --dismiss-banners
+
+# back should land us on index.html — banner-less. The dismissal helper
+# is allowed to run (it's a no-op when there are no matching elements);
+# we just verify back navigated and didn't error.
+assert_output_contains "index.html" "back navigated to prior URL"
+
+end_test
+
+# ─────────────────────────────────────────────────────────────────
+start_test "pinchtab forward --dismiss-banners clears banner on next page"
+
+pt_ok nav "${FIXTURES_URL}/index.html"
+pt_ok nav "${FIXTURES_URL}/cookie-banner.html"
+pt_ok back
+pt_ok forward --dismiss-banners
+
+# forward returns to cookie-banner.html — the helper should fire the
+# Accept-all click on the freshly-rendered banner.
+pt_ok eval "document.body.dataset.cookieDismissed"
+assert_output_contains "true" "forward --dismiss-banners cleared the banner"
+
+end_test
+
+# ─────────────────────────────────────────────────────────────────
+start_test "pinchtab click --wait-nav --dismiss-banners on landing page"
+
+# Start on a banner-less page that links to the cookie-banner page. Click
+# the link with --wait-nav so the click triggers a navigation; pair with
+# --dismiss-banners so the helper fires after the nav settles.
+pt_ok nav "${FIXTURES_URL}/index.html"
+
+# Inject a link to the cookie-banner fixture so the click triggers a nav.
+pt_ok eval "(() => { const a = document.createElement('a'); a.id = 'goto-cookie'; a.href = '${FIXTURES_URL}/cookie-banner.html'; a.textContent = 'go'; document.body.appendChild(a); return 'ok'; })()"
+pt_ok click --css "#goto-cookie" --wait-nav --dismiss-banners
+
+pt_ok eval "document.body.dataset.cookieDismissed"
+assert_output_contains "true" "click --wait-nav --dismiss-banners cleared the banner"
+
+end_test

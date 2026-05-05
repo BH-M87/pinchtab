@@ -6,8 +6,17 @@
   },
   "instanceDefaults": {
     "maxTabs": 20,
-    "stealthLevel": "light",
+    "stealthLevel": "full",
     "headless": true
+  },
+  "autoSolver": {
+    "enabled": true,
+    "autoTrigger": true,
+    "triggerOnNavigate": false,
+    "triggerOnAction": true,
+    "maxAttempts": 3,
+    "solverTimeoutSec": 30,
+    "solvers": ["cloudflare", "semantic", "jschallenge"]
   },
   "multiInstance": {
     "strategy": "always-on",

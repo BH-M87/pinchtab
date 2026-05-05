@@ -120,8 +120,8 @@ pinchtab --server http://localhost:9868 snap -i -c  # target a specific instance
 ### Navigation and tabs
 
 ```bash
-pinchtab nav <url>                                  # auto-starts default local server; flags: --snap, --new-tab, --tab <id>, --block-images, --block-ads, --print-tab-id
-pinchtab back | forward | reload                    # all support --snap, --snap-diff, --text
+pinchtab nav <url>                                  # auto-starts default local server; flags: --snap, --new-tab, --tab <id>, --block-images, --block-ads, --dismiss-banners, --print-tab-id
+pinchtab back | forward | reload                    # all support --snap, --snap-diff, --text, --dismiss-banners
 pinchtab tab                                        # list tabs
 pinchtab tab <tab-id>                               # focus tab
 pinchtab nav <url> --new-tab                        # force another tab
@@ -164,7 +164,7 @@ Guidance:
 All interaction commands accept unified selectors (see Selectors above).
 
 ```bash
-pinchtab click <selector>                           # flags: --snap, --snap-diff, --text, --wait-nav, --x/--y (coords), --dialog-action accept|dismiss [--dialog-text "..."]
+pinchtab click <selector>                           # flags: --snap, --snap-diff, --text, --wait-nav, --dismiss-banners (with --wait-nav), --x/--y (coords), --dialog-action accept|dismiss [--dialog-text "..."]
 pinchtab dblclick <selector>
 pinchtab mouse move|down|up <selector|x y>          # --button left|middle|right
 pinchtab mouse wheel <ms> --dx <n> --dy <n>
@@ -183,6 +183,7 @@ Rules:
 - **Prefer `--snap-diff`** with `click`, `fill`, `select`, `back`, `forward`, `reload` — returns `OK` + only changed elements. Use `--snap` when you need the full snapshot (first nav, major page change).
 - Prefer `fill` for form entry; `type` only when the site depends on keystroke events.
 - `click --wait-nav` when a click navigates. May return `{"success":true}` or `Error 409: unexpected page navigation` — treat 409 as success and verify with fresh `snap`/`text`.
+- `--dismiss-banners` on `nav`/`back`/`forward`/`reload` (and on `click --wait-nav`) runs a best-effort pass that clicks a visible Accept all / Got it / OK / Close / Dismiss button, or removes obvious cookie/consent/dialog/overlay containers. Use when a fresh page-load shows a modal that blocks interaction (typical symptom: `Error 500: action click: element is occluded`). Heuristic — can misfire on pages that label legitimate UI as `overlay` or `modal`; not a substitute for an explicit selector when one is known.
 - Use low-level `mouse` only for drag handles, canvas widgets, or exact pointer sequences.
 - JS dialogs: `--dialog-action accept|dismiss`, `--dialog-text` for `prompt()` responses.
 - HTTP scroll action: `"scrollX"`/`"scrollY"` for pixel deltas, `"selector"` to scroll into view — `x`/`y` are viewport coords, not deltas.

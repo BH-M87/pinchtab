@@ -44,6 +44,7 @@ COMMANDS=(
   "bench:📊:Benchmark lanes"
   "  pinchtab:📊:Run PinchTab benchmark via Anthropic Messages API"
   "  agent-browser:📊:Run agent-browser benchmark via Anthropic Messages API"
+  "  browserbench:📊:Run BrowserBench CSV tasks through PinchTab"
   "doctor:🩺:Setup dev environment"
   "check go:🧪:Go only"
   "check dashboard:🧪:Dashboard only"
