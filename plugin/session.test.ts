@@ -5,6 +5,8 @@ import { getLastTabId, setLastTabId, resolveProfile, isLocalHost, formatDiscover
 describe("tab session state", () => {
   beforeEach(() => {
     setLastTabId(undefined);
+    setLastTabId(undefined, { agentId: "main" });
+    setLastTabId(undefined, { agentId: "writer" });
   });
 
   it("starts with undefined tabId", () => {
@@ -14,6 +16,14 @@ describe("tab session state", () => {
   it("stores and retrieves tabId", () => {
     setLastTabId("tab123");
     assert.strictEqual(getLastTabId(), "tab123");
+  });
+
+  it("keeps tab state isolated per agent", () => {
+    setLastTabId("main-tab", { agentId: "main", sessionId: "s1" });
+    setLastTabId("writer-tab", { agentId: "writer", sessionId: "s2" });
+    assert.strictEqual(getLastTabId({ agentId: "main" }), "main-tab");
+    assert.strictEqual(getLastTabId({ agentId: "writer" }), "writer-tab");
+    assert.strictEqual(getLastTabId(), undefined);
   });
 
   it("can clear tabId", () => {

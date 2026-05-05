@@ -1,6 +1,6 @@
-import { describe, it } from "node:test";
+import { afterEach, beforeEach, describe, it } from "node:test";
 import assert from "node:assert";
-import { isRefToken, normalizeActionParams, looksLikeStaleRef, textResult, imageResult, resourceResult } from "./client.ts";
+import { isRefToken, normalizeActionParams, looksLikeStaleRef, pinchtabFetch, textResult, imageResult, resourceResult } from "./client.ts";
 
 describe("isRefToken", () => {
   it("returns true for valid ref tokens", () => {
@@ -80,6 +80,38 @@ describe("looksLikeStaleRef", () => {
 
   it("checks body as well as error", () => {
     assert.strictEqual(looksLikeStaleRef({ error: "failed", body: "stale ref" }), true);
+  });
+});
+
+describe("pinchtabFetch", () => {
+  const originalFetch = globalThis.fetch;
+
+  beforeEach(() => {
+    globalThis.fetch = (async (_input: string | URL | Request, init?: RequestInit) => {
+      return new Response(JSON.stringify({ headers: init?.headers ?? {} }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }) as typeof fetch;
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  it("forwards OpenClaw agent and session headers", async () => {
+    const result = await pinchtabFetch(
+      { baseUrl: "http://localhost:9867", token: "secret" },
+      "/health",
+      {},
+      { agentId: "writer", sessionId: "session-123", sessionKey: "chat:writer" },
+    );
+    assert.deepStrictEqual(result.headers, {
+      Authorization: "Bearer secret",
+      "X-OpenClaw-Agent-Id": "writer",
+      "X-OpenClaw-Session-Id": "session-123",
+      "X-OpenClaw-Session-Key": "chat:writer",
+    });
   });
 });
 

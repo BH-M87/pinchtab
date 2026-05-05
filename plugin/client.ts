@@ -1,16 +1,26 @@
-import type { PluginConfig, ToolResult } from "./types.js";
+import type { PluginConfig, PluginRuntimeContext, ToolResult } from "./types.js";
 import { resolveEffectiveConfig } from "./session.js";
+
+function buildRequestHeaders(cfg: PluginConfig, context?: PluginRuntimeContext): Record<string, string> {
+  const headers: Record<string, string> = {};
+  if (cfg.token) headers["Authorization"] = `Bearer ${cfg.token}`;
+  if (context?.agentId) headers["X-OpenClaw-Agent-Id"] = context.agentId;
+  if (context?.agentName) headers["X-OpenClaw-Agent-Name"] = context.agentName;
+  if (context?.sessionId) headers["X-OpenClaw-Session-Id"] = context.sessionId;
+  if (context?.sessionKey) headers["X-OpenClaw-Session-Key"] = context.sessionKey;
+  return headers;
+}
 
 export async function pinchtabFetch(
   cfg: PluginConfig,
   path: string,
   opts: { method?: string; body?: unknown; rawResponse?: boolean } = {},
+  context?: PluginRuntimeContext,
 ): Promise<any> {
   const effectiveCfg = await resolveEffectiveConfig(cfg);
   const base = effectiveCfg.baseUrl || "http://localhost:9867";
   const url = `${base}${path}`;
-  const headers: Record<string, string> = {};
-  if (effectiveCfg.token) headers["Authorization"] = `Bearer ${effectiveCfg.token}`;
+  const headers = buildRequestHeaders(effectiveCfg, context);
   if (opts.body) headers["Content-Type"] = "application/json";
 
   const controller = new AbortController();

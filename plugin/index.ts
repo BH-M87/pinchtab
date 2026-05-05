@@ -7,12 +7,20 @@
  */
 
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
-import type { PluginApi, PluginConfig, PluginTool } from "./types.js";
+import type { PluginApi, PluginConfig, PluginRuntimeContext, PluginTool, PluginToolContext } from "./types.js";
 import { pinchtabToolSchema, pinchtabToolDescription, executePinchtabAction } from "./tools/pinchtab.js";
 import { browserToolSchema, browserToolDescription, executeBrowserAction } from "./tools/browser.js";
 
 function getConfig(api: PluginApi): PluginConfig {
   return (api.pluginConfig ?? api.config?.plugins?.entries?.pinchtab?.config ?? {}) as PluginConfig;
+}
+
+function toRuntimeContext(ctx: PluginToolContext): PluginRuntimeContext {
+  return {
+    agentId: ctx.agentId,
+    sessionId: ctx.sessionId,
+    sessionKey: ctx.sessionKey,
+  };
 }
 
 export default definePluginEntry({
@@ -22,28 +30,34 @@ export default definePluginEntry({
   register(api) {
     const cfg = getConfig(api);
 
-    const pinchtabTool = {
-      name: "pinchtab",
-      label: "PinchTab",
-      description: pinchtabToolDescription,
-      parameters: pinchtabToolSchema,
-      async execute(_id: string, params: any) {
-        return executePinchtabAction(getConfig(api), params);
-      },
-    } satisfies PluginTool;
-    api.registerTool(pinchtabTool);
-
-    if (cfg.registerBrowserTool !== false) {
-      const browserTool = {
-        name: "browser",
-        label: "Browser",
-        description: browserToolDescription,
-        parameters: browserToolSchema,
+    api.registerTool((ctx) => {
+      const runtimeContext = toRuntimeContext(ctx);
+      const pinchtabTool = {
+        name: "pinchtab",
+        label: "PinchTab",
+        description: pinchtabToolDescription,
+        parameters: pinchtabToolSchema,
         async execute(_id: string, params: any) {
-          return executeBrowserAction(getConfig(api), params);
+          return executePinchtabAction(getConfig(api), params, runtimeContext);
         },
       } satisfies PluginTool;
-      api.registerTool(browserTool);
+      return pinchtabTool;
+    });
+
+    if (cfg.registerBrowserTool !== false) {
+      api.registerTool((ctx) => {
+        const runtimeContext = toRuntimeContext(ctx);
+        const browserTool = {
+          name: "browser",
+          label: "Browser",
+          description: browserToolDescription,
+          parameters: browserToolSchema,
+          async execute(_id: string, params: any) {
+            return executeBrowserAction(getConfig(api), params, runtimeContext);
+          },
+        } satisfies PluginTool;
+        return browserTool;
+      });
     }
   },
 });

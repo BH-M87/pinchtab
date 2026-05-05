@@ -1,4 +1,4 @@
-import type { AnyAgentTool, OpenClawPluginApi } from "openclaw/plugin-sdk";
+import type { AnyAgentTool, OpenClawPluginApi, OpenClawPluginToolContext } from "openclaw/plugin-sdk";
 
 export interface PluginConfig {
   baseUrl?: string;
@@ -21,8 +21,22 @@ export interface PluginConfig {
   profiles?: Record<string, { instanceId?: string; attach?: boolean }>;
 }
 
+export interface PluginRuntimeContext {
+  agentId?: string;
+  agentName?: string;
+  sessionId?: string;
+  sessionKey?: string;
+}
+
+export interface AgentSessionState extends PluginRuntimeContext {
+  key: string;
+  lastTabId?: string;
+  updatedAt?: number;
+}
+
 export type PluginApi = OpenClawPluginApi;
 export type PluginTool = AnyAgentTool;
+export type PluginToolContext = OpenClawPluginToolContext;
 
 export interface ToolResult {
   content: Array<
