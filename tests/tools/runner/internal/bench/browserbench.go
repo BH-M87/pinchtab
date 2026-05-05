@@ -38,41 +38,41 @@ type BrowserBenchArgs struct {
 }
 
 type BrowserBenchTask struct {
-	TaskID         string
-	StartingURL    string
+	TaskID          string
+	StartingURL     string
 	TaskDescription string
-	GroundTruthURL string
-	GroundTruth    string
+	GroundTruthURL  string
+	GroundTruth     string
 }
 
 type BrowserBenchRow struct {
-	TaskID                    string
-	StartingURL               string
-	TaskDescription           string
-	GroundTruthURL            string
-	GroundTruth               string
-	Provider                  string
-	Timestamp                 string
-	Success                   bool
-	ErrorMessage              string
-	AgentResult               string
-	SessionURL                string
-	ExecutionTimeSeconds      string
-	PinchTabVersion           string
-	StealthLevel              string
-	SolverUsed                string
-	SolveAttempts             string
-	HARPath                   string
-	ScreenshotPath            string
-	ConsoleLogPath            string
-	CommandLogPath            string
-	RequestCount              string
-	InputTokens               string
-	OutputTokens              string
-	CacheCreationInputTokens  string
-	CacheReadInputTokens      string
-	TotalInputTokens          string
-	TotalTokens               string
+	TaskID                   string
+	StartingURL              string
+	TaskDescription          string
+	GroundTruthURL           string
+	GroundTruth              string
+	Provider                 string
+	Timestamp                string
+	Success                  bool
+	ErrorMessage             string
+	AgentResult              string
+	SessionURL               string
+	ExecutionTimeSeconds     string
+	PinchTabVersion          string
+	StealthLevel             string
+	SolverUsed               string
+	SolveAttempts            string
+	HARPath                  string
+	ScreenshotPath           string
+	ConsoleLogPath           string
+	CommandLogPath           string
+	RequestCount             string
+	InputTokens              string
+	OutputTokens             string
+	CacheCreationInputTokens string
+	CacheReadInputTokens     string
+	TotalInputTokens         string
+	TotalTokens              string
 }
 
 func defaultBrowserBenchArgs() BrowserBenchArgs {

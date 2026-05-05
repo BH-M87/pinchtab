@@ -36,7 +36,7 @@ section "Format"
 go_files=()
 while IFS= read -r file; do
   [ -f "$file" ] && go_files+=("$file")
-done < <(git ls-files -- '*.go')
+done < <(git ls-files -- '*.go'; git ls-files --others --exclude-standard -- '*.go')
 unformatted=""
 if [ ${#go_files[@]} -gt 0 ]; then
   unformatted=$(gofmt -l "${go_files[@]}")
@@ -51,7 +51,7 @@ if [ -n "$unformatted" ]; then
     gofmt -w "${go_files[@]}"
     ok "gofmt (fixed)"
   else
-    hint "Run: gofmt -w \$(git ls-files -- '*.go' | while read -r file; do [ -f \"\$file\" ] && printf '%s\\n' \"\$file\"; done)"
+    hint "Run: gofmt -w \$( { git ls-files -- '*.go'; git ls-files --others --exclude-standard -- '*.go'; } | while read -r file; do [ -f \"\$file\" ] && printf '%s\\n' \"\$file\"; done)"
     exit 1
   fi
 else

@@ -684,6 +684,7 @@ func TestRouteManager_AddRule_PerTabCapEnforced(t *testing.T) {
 		// rollback after fetch.Enable failure may have wiped state if it was
 		// ever empty; here state existed before, so a snapshot was restored.
 		t.Skip("rollback path consumed the state; cap-replace assertion still valid via no error")
+		return
 	}
 	if len(state.rules) != originalLen {
 		t.Errorf("expected rule count unchanged on replace, got %d (was %d)", len(state.rules), originalLen)
