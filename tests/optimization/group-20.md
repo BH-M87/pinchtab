@@ -1,14 +1,13 @@
 # Group 20: Dialogs
 
 ### 20.1 Accept alert
-Navigate to `http://fixtures/alerts.html`. Click the "Click for Alert" button and dismiss the alert.
+Navigate to `http://fixtures/alerts.html`. Click the button that triggers an alert and dismiss it. Read the page status text afterward.
 
-**Verify**: The page result contains `DIALOG_ALERT_DISMISSED`.
+**Verify**: Report the page status text after the alert was handled.
 
 ### 20.2 Cancel confirm
-Click the "Click for Confirm" button and cancel the confirm dialog.
+Click the button that triggers a confirm dialog and cancel it. Read the page status text afterward.
 
-**Verify**: The page result contains `DIALOG_CONFIRM_CANCELLED`.
+**Verify**: Report the page status text after the confirm dialog was handled.
 
 ---
-

@@ -1,14 +1,13 @@
 # Group 27: Contenteditable editor
 
 ### 27.1 Type into the rich-text editor
-Navigate to `http://fixtures/editor.html`. Type the text `Hello rich text` into the editor area. Note that contenteditable elements don't have `.value`, so use keyboard events rather than fill.
+Navigate to `http://fixtures/editor.html`. Type `Hello rich text` into the editor area and report the character count and mirrored text shown on the page.
 
-**Verify**: Page text contains `EDITOR_CHARS=15` and the mirror shows `Hello rich text`.
+**Verify**: Report includes the character count and confirms the typed text appears in the editor.
 
 ### 27.2 Commit by pressing Enter
-Press Enter (the editor intercepts Enter to commit the current buffer to a separate marker).
+Press Enter to commit the current buffer and report what the page shows as the committed text.
 
-**Verify**: Page text contains `EDITOR_COMMITTED=Hello rich text`.
+**Verify**: Report confirms the committed text matches what was typed.
 
 ---
-

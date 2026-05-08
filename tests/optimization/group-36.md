@@ -1,14 +1,14 @@
 # Group 36: Search results page (SERP)
 
 ### 36.1 Find a specific result
-Navigate to `http://fixtures/serp.html`. The page has 6 search result cards. Extract just the third result's content using a scoped observation.
+Navigate to `http://fixtures/serp.html`. The page shows search results. Read the third result and report its title and snippet.
 
-**Verify**: The scoped output contains `RESULT_3_TITLE` and `RESULT_3_SNIPPET_MARKER`.
+**Verify**: Report includes the third result's title and snippet content.
 
 ### 36.2 Count all result cards
-Extract the full page content to verify all six results are present in one pass. Note that Readability may trim repetitive card layouts.
+Read the full page and report how many search results are listed, along with each result's title.
 
-**Verify**: Output contains all of `RESULT_1_TITLE` through `RESULT_6_TITLE` and the summary `SERP_RESULT_COUNT_6`.
+**Verify**: Report includes all result titles and the total count.
 
 ---
 

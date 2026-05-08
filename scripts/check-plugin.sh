@@ -6,6 +6,14 @@ cd "$(dirname "$0")/.."
 echo "📦 Plugin checks"
 echo ""
 
+# Ensure dependencies are installed
+if [ ! -d "plugin/node_modules" ]; then
+  echo "  Installing dependencies..."
+  (cd plugin && npm install --silent)
+  echo "  ✓ Dependencies installed"
+  echo ""
+fi
+
 # Verify JSON files
 echo "  Validating JSON schemas..."
 node -e "JSON.parse(require('fs').readFileSync('plugin/package.json', 'utf8'))"

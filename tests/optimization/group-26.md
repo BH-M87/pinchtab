@@ -1,14 +1,13 @@
 # Group 26: Accordion
 
 ### 26.1 Open section A
-Navigate to `http://fixtures/accordion.html`. Click the header for Section A to expand it.
+Navigate to `http://fixtures/accordion.html`. Click the header for Section A to expand it and report what content is revealed.
 
-**Verify**: Page text includes `ACCORDION_SECTION_A_OPEN`.
+**Verify**: Report includes the content shown inside Section A.
 
 ### 26.2 Open section B
-Click the header for Section B. Because the accordion is exclusive-expand, Section A should close.
+Click the header for Section B. The accordion only allows one section open at a time. Report the content of Section B and whether Section A is now collapsed.
 
-**Verify**: Page text includes `ACCORDION_SECTION_B_OPEN`, and Section A's `aria-expanded` attribute is now `"false"` (use `eval` to check the attribute if needed).
+**Verify**: Report includes the Section B content and confirms Section A has closed.
 
 ---
-

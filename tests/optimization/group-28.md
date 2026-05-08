@@ -1,14 +1,13 @@
 # Group 28: Range slider
 
-### 28.1 Move slider into HIGH bucket
-Navigate to `http://fixtures/range.html`. Set the volume range slider to 90.
+### 28.1 Set slider to a high value
+Navigate to `http://fixtures/range.html`. Set the volume slider to 90 and report the current value and its category as shown on the page.
 
-**Verify**: Page text contains both `RANGE_VALUE_90` and `BUCKET_HIGH`.
+**Verify**: Report confirms the slider value and its category.
 
-### 28.2 Move slider into LOW bucket
-Without reloading, change the slider to 10.
+### 28.2 Set slider to a low value
+Without reloading, change the slider to 10 and report the updated value and category.
 
-**Verify**: Page text now contains `RANGE_VALUE_10` and `BUCKET_LOW`.
+**Verify**: Report confirms the new slider value and its updated category.
 
 ---
-

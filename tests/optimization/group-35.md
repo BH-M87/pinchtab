@@ -1,14 +1,14 @@
 # Group 35: Long-form article (Medium/Substack style)
 
-### 35.1 Read the article with default `text`
-Navigate to `http://fixtures/article.html`. Extract the page's main content using the default `text` (Readability) mode. Default mode is the right choice for article-style pages.
+### 35.1 Read the article content
+Navigate to `http://fixtures/article.html`. Read the article using the default text mode, which is suited for article-style pages. Report the publish date and the word count mentioned in the article.
 
-**Verify**: The extracted text contains both `ARTICLE_PUBLISHED_2026_04_15` and `ARTICLE_WORD_COUNT_MARKER_323` (both inside the article body — Readability keeps them).
+**Verify**: Report includes the article's publish date and word-count marker.
 
-### 35.2 See the chrome that Readability drops
-Re-extract with `text --full` and confirm the footer is included this time.
+### 35.2 Read the full page including the footer
+Re-read the page using full text mode and report what appears in the footer.
 
-**Verify**: `--full` output contains `FOOTER_COPYRIGHT_MARKER` (which the default mode trims).
+**Verify**: Report includes the footer copyright information.
 
 ---
 

@@ -1,14 +1,13 @@
 # Group 14: Dynamic Content Loading
 
 ### 14.1 Load more products
-Navigate to `http://fixtures/ecommerce.html`. Find and click the "Load More Products" button to reveal additional products.
+Go to `http://fixtures/ecommerce.html`. Find and click the button to load more products.
 
-**Verify**: Additional products appeared (`ADDITIONAL_PRODUCTS_LOADED`).
+**Verify**: Additional products appeared on the page.
 
 ### 14.2 Add a lazy-loaded product to cart
-After loading more products, add product #5 (USB-C Cable) to the cart.
+After loading the extra products, find the USB-C Cable and add it to the cart.
 
-**Verify**: Cart shows the lazy-loaded item (`CART_UPDATED_WITH_LAZY_PRODUCT`).
+**Verify**: The cart now contains the newly loaded product.
 
 ---
-

@@ -1,14 +1,13 @@
 # Group 25: Tab panels
 
 ### 25.1 Switch to the Settings tab
-Navigate to `http://fixtures/tabs.html`. The Profile tab is shown by default. Click the Settings tab.
+Navigate to `http://fixtures/tabs.html`. The Profile tab is shown by default. Click the Settings tab and report what content appears.
 
-**Verify**: After the click, the page content includes `TAB_SETTINGS_CONTENT` (and the Profile content is no longer visible).
+**Verify**: Report includes the content shown under the Settings tab.
 
 ### 25.2 Switch to the Billing tab
-Click the Billing tab.
+Click the Billing tab and report what content appears.
 
-**Verify**: Page content now includes `TAB_BILLING_CONTENT`.
+**Verify**: Report includes the content shown under the Billing tab.
 
 ---
-

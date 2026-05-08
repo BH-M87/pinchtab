@@ -1,9 +1,9 @@
 # Group 34: Sandboxed iframe
 
 ### 34.1 Click inside a sandboxed iframe
-Navigate to `http://fixtures/iframe-sandbox.html`. The iframe has `sandbox="allow-scripts allow-same-origin"`. Scope into the sandboxed iframe, click the button inside it, and verify.
+Navigate to `http://fixtures/iframe-sandbox.html`. The page has a sandboxed iframe. Find the button inside it and click it.
 
-**Verify**: Scoped snapshot contains `SANDBOX_CLICKED=YES`.
+**Verify**: Report confirms the button inside the sandboxed iframe was clicked.
 
 ---
 

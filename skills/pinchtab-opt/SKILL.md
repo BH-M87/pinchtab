@@ -1,11 +1,11 @@
 ---
 name: pinchtab-opt
-description: "Run the PinchTab optimization loop. Spawns blind subagents that execute 87 browser automation steps across 39 groups using only the PinchTab skill, then reports pass/fail results and operation counts vs baseline. Use when asked to 'run optimization', 'run the opt loop', 'benchmark the agent', or 'test pinchtab agent'."
+description: "Run the PinchTab optimization loop. Spawns blind subagents that execute 99 browser automation steps across 45 groups using only the PinchTab skill, then reports pass/fail results and operation counts vs baseline. Use when asked to 'run optimization', 'run the opt loop', 'benchmark the agent', or 'test pinchtab agent'."
 ---
 
 # PinchTab Optimization Loop
 
-Run blind subagents against 87 browser automation steps (39 groups) to measure how well an AI agent can drive PinchTab without hand-held selectors.
+Run blind subagents against 99 browser automation steps (45 groups) to measure how well an AI agent can drive PinchTab without hand-held selectors.
 
 ## Path Resolution
 
@@ -60,11 +60,11 @@ Save the three file paths — you'll pass one to each subagent.
 
 ### 1. Spawn 3 parallel subagents
 
-Use the **Agent** tool with `run_in_background: true`. Split the 39 groups into three batches:
+Use the **Agent** tool with `run_in_background: true`. Split the 45 groups into three batches:
 
-- **Batch A**: groups 0-12 (39 steps)
-- **Batch B**: groups 13-25 (26 steps)
-- **Batch C**: groups 26-38 (22 steps)
+- **Batch A**: groups 0-14 (45 steps)
+- **Batch B**: groups 15-29 (30 steps)
+- **Batch C**: groups 30-44 (24 steps)
 
 Each subagent gets the **same prompt template** — only the group range and `{REPORT_FILE}` change. Replace `{START}`, `{END}`, `{START_PAD}`, `{END_PAD}`, `{PROJECT_ROOT}`, and `{REPORT_FILE}` with actual values:
 
@@ -100,7 +100,7 @@ While agents run, periodically count step-end recordings in each agent's output 
 grep -c "step-end" <output_file>
 ```
 
-Expected totals: Batch A ~39, Batch B ~26, Batch C ~22 = 87 total.
+Expected totals: Batch A ~45, Batch B ~30, Batch C ~24 = 99 total.
 
 ### 3. Collect and summarize
 
@@ -108,9 +108,9 @@ Once all 3 agents complete, use `./scripts/runner` subcommands to merge reports 
 
 ## Reference Numbers
 
-- **Baseline**: 87/87 steps, 246 browser ops, 2.8 ops/step
-- **Expected agent range**: 350-500 browser ops, 4-6 ops/step (agent must explore pages before acting)
-- **Group count**: 39 groups, 87 total steps
+- **Baseline**: 99/99 steps
+- **Expected agent range**: 400-600 browser ops, 4-6 ops/step (agent must explore pages before acting)
+- **Group count**: 45 groups, 99 total steps
 
 ## File Locations (relative to project root)
 
@@ -118,7 +118,7 @@ Once all 3 agents complete, use `./scripts/runner` subcommands to merge reports 
 |------|---------|
 | `tests/optimization/subagent-context.md` | Subagent instructions (env, wrapper, recording) |
 | `tests/optimization/index.md` | Group listing |
-| `tests/optimization/group-00.md` .. `group-38.md` | Task descriptions |
+| `tests/optimization/group-00.md` .. `group-44.md` | Task descriptions |
 | `skills/pinchtab/SKILL.md` | PinchTab command reference (read by subagent) |
 | `tests/tools/scripts/pt` | PinchTab wrapper (CWD must be `tests/tools`) |
 | `tests/tools/scripts/runner` | Step recorder (CWD must be `tests/tools`) |

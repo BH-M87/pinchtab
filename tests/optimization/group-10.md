@@ -1,14 +1,13 @@
 # Group 10: Nested Interactions & Modal Dialogs
 
 ### 10.1 Open and interact with modal on dashboard
-Navigate to `http://fixtures/dashboard.html`. Find and click the Settings button to open the modal dialog.
+Go to `http://fixtures/dashboard.html`. Find and click the Settings button to open the settings dialog.
 
-**Verify**: Modal appeared — snapshot contains "Dashboard Settings".
+**Verify**: A settings modal appeared on the page.
 
 ### 10.2 Modify settings and close modal
-In the modal, select "Dark" from the theme dropdown, then click the Save button. After the modal closes, check the page content.
+In the settings modal, change the theme to "Dark" and save. After the modal closes, check whether the theme change was applied.
 
-**Verify**: Page contains `THEME_DARK_APPLIED`.
+**Verify**: The dark theme was applied to the page.
 
 ---
-

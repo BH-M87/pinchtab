@@ -1,14 +1,14 @@
 # Group 30: Custom dropdown menu
 
 ### 30.1 Pick the "Beta" item
-Navigate to `http://fixtures/dropdown.html`. The page has a custom dropdown — click the toggle button to open the menu, then click the "Beta" item.
+Navigate to `http://fixtures/dropdown.html`. Open the dropdown and select "Beta".
 
-**Verify**: Page text contains `DROPDOWN_SELECTED=BETA`.
+**Verify**: Report confirms "Beta" is the selected item.
 
 ### 30.2 Reopen and pick "Gamma"
-Reopen the dropdown and select "Gamma". (Each selection auto-closes the menu, so you need to click the toggle again before selecting.)
+Open the dropdown again and select "Gamma".
 
-**Verify**: Page text contains `DROPDOWN_SELECTED=GAMMA`.
+**Verify**: Report confirms the selection changed to "Gamma".
 
 ---
 

@@ -1,14 +1,13 @@
 # Group 9: Export
 
 ### 9.1 Screenshot a complex page
-Navigate to `http://fixtures/dashboard.html` and take a screenshot.
+Go to `http://fixtures/dashboard.html` and take a screenshot of the page.
 
-**Verify**: Screenshot generated (file saved or base64 returned).
+**Verify**: A screenshot was generated and saved.
 
 ### 9.2 Export a page as PDF
-Export the dashboard as a PDF.
+Export the dashboard page as a PDF.
 
-**Verify**: PDF generated.
+**Verify**: A PDF was generated.
 
 ---
-

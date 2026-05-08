@@ -1,14 +1,13 @@
 # Group 22: Mouse Drag & Drop
 
 ### 22.1 Drag a piece into Zone A
-Navigate to `http://fixtures/drag.html`. The page contains a draggable square and three labeled target zones. Drag the piece so it ends up over **Zone A**.
+Navigate to `http://fixtures/drag.html`. The page has a draggable piece and several target zones. Drag the piece into Zone A and report the result shown on the page.
 
-**Verify**: The page shows `LAST_DROP=DROP_ZONE_A_OK`.
+**Verify**: Report confirms the piece was dropped in Zone A.
 
 ### 22.2 Drag to Zone B, then Zone C
-Without reloading the page, drag the piece next into **Zone B**, and then into **Zone C**. The page records an ordered drop sequence.
+Without reloading the page, drag the piece into Zone B, then into Zone C. Report the full drop sequence shown on the page.
 
-**Verify**: The page shows `DROP_SEQUENCE=DROP_ZONE_A_OK,DROP_ZONE_B_OK,DROP_ZONE_C_OK` (all three drops in order).
+**Verify**: Report confirms all three drops happened in the correct order (A, B, C).
 
 ---
-

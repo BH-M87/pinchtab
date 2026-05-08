@@ -11,6 +11,7 @@ import (
 	"github.com/chromedp/chromedp"
 	"github.com/pinchtab/pinchtab/internal/assets"
 	"github.com/pinchtab/pinchtab/internal/bridge"
+	"github.com/pinchtab/pinchtab/internal/bridge/observe"
 	"github.com/pinchtab/pinchtab/internal/engine"
 	"github.com/pinchtab/pinchtab/internal/httpx"
 )
@@ -114,48 +115,19 @@ func (h *Handlers) HandleText(w http.ResponseWriter, r *http.Request) {
 
 	var text string
 	if targetFrameID == "" {
-		// Top-frame path — keep the ergonomic chromedp.Evaluate helper.
-		if err := chromedp.Run(tCtx, chromedp.Evaluate(script, &text)); err != nil {
-			httpx.Error(w, 500, fmt.Errorf("text extract: %w", err))
-			return
-		}
+		// Cross-frame path: collect text from all reachable frames (same
+		// as snap, which auto-flattens same-origin iframes). Cross-origin
+		// frames are silently skipped because createIsolatedWorld fails.
+		text = h.extractTextAllFrames(tCtx, script)
 	} else {
 		// Frame-scoped path — evaluate in the frame's isolated world so the
 		// expression sees the iframe's `document`, not the parent's.
-		execID, err := bridge.FrameExecutionContextID(tCtx, targetFrameID)
+		var err error
+		text, err = h.evalTextInFrame(tCtx, script, targetFrameID)
 		if err != nil {
-			httpx.Error(w, 500, fmt.Errorf("resolve frame context: %w", err))
+			httpx.Error(w, 500, err)
 			return
 		}
-		var raw json.RawMessage
-		err = chromedp.Run(tCtx, chromedp.ActionFunc(func(ctx context.Context) error {
-			return chromedp.FromContext(ctx).Target.Execute(ctx, "Runtime.evaluate", map[string]any{
-				"expression":    script,
-				"returnByValue": true,
-				"contextId":     execID,
-			}, &raw)
-		}))
-		if err != nil {
-			httpx.Error(w, 500, fmt.Errorf("text extract (frame %s): %w", targetFrameID, err))
-			return
-		}
-		var er struct {
-			Result struct {
-				Value string `json:"value"`
-			} `json:"result"`
-			ExceptionDetails *struct {
-				Text string `json:"text"`
-			} `json:"exceptionDetails,omitempty"`
-		}
-		if err := json.Unmarshal(raw, &er); err != nil {
-			httpx.Error(w, 500, fmt.Errorf("text extract parse: %w", err))
-			return
-		}
-		if er.ExceptionDetails != nil && er.ExceptionDetails.Text != "" {
-			httpx.Error(w, 500, fmt.Errorf("text extract (frame %s): %s", targetFrameID, er.ExceptionDetails.Text))
-			return
-		}
-		text = er.Result.Value
 	}
 
 	truncated := false
@@ -229,6 +201,84 @@ func (h *Handlers) HandleTabText(w http.ResponseWriter, r *http.Request) {
 	req.URL = &u
 
 	h.HandleText(w, req)
+}
+
+// extractTextAllFrames evaluates the text script in every reachable frame and
+// concatenates the results. Cross-origin frames are silently skipped (the
+// isolated-world creation fails, just like snap skips inaccessible frames).
+func (h *Handlers) extractTextAllFrames(ctx context.Context, script string) string {
+	frameTree, err := observe.FetchFrameTree(ctx)
+	if err != nil {
+		// Fallback: top frame only.
+		var text string
+		_ = chromedp.Run(ctx, chromedp.Evaluate(script, &text))
+		return text
+	}
+
+	ids := observe.FrameIDs(frameTree)
+	if len(ids) == 0 {
+		var text string
+		_ = chromedp.Run(ctx, chromedp.Evaluate(script, &text))
+		return text
+	}
+
+	var parts []string
+	for _, id := range ids {
+		t, err := h.evalTextInFrame(ctx, script, id)
+		if err != nil || strings.TrimSpace(t) == "" {
+			continue
+		}
+		parts = append(parts, t)
+	}
+	if len(parts) == 0 {
+		var text string
+		_ = chromedp.Run(ctx, chromedp.Evaluate(script, &text))
+		return text
+	}
+	return strings.Join(parts, "\n\n")
+}
+
+// evalTextInFrame evaluates a text-extraction script in a specific frame's
+// isolated world and returns the result string.
+func (h *Handlers) evalTextInFrame(ctx context.Context, script, frameID string) (string, error) {
+	execID, err := bridge.FrameExecutionContextID(ctx, frameID)
+	if err != nil {
+		return "", fmt.Errorf("resolve frame context: %w", err)
+	}
+	if execID == 0 {
+		// Top frame — use the simpler chromedp path.
+		var text string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(script, &text)); err != nil {
+			return "", fmt.Errorf("text extract: %w", err)
+		}
+		return text, nil
+	}
+	var raw json.RawMessage
+	err = chromedp.Run(ctx, chromedp.ActionFunc(func(ctx context.Context) error {
+		return chromedp.FromContext(ctx).Target.Execute(ctx, "Runtime.evaluate", map[string]any{
+			"expression":    script,
+			"returnByValue": true,
+			"contextId":     execID,
+		}, &raw)
+	}))
+	if err != nil {
+		return "", fmt.Errorf("text extract (frame %s): %w", frameID, err)
+	}
+	var er struct {
+		Result struct {
+			Value string `json:"value"`
+		} `json:"result"`
+		ExceptionDetails *struct {
+			Text string `json:"text"`
+		} `json:"exceptionDetails,omitempty"`
+	}
+	if err := json.Unmarshal(raw, &er); err != nil {
+		return "", fmt.Errorf("text extract parse: %w", err)
+	}
+	if er.ExceptionDetails != nil && er.ExceptionDetails.Text != "" {
+		return "", fmt.Errorf("text extract (frame %s): %s", frameID, er.ExceptionDetails.Text)
+	}
+	return er.Result.Value, nil
 }
 
 // extractElementText extracts innerText from a specific element by selector or ref.

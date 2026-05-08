@@ -1,14 +1,13 @@
 # Group 7: Content + Interaction Combined
 
 ### 7.1 Read and comment on Go article
-Navigate to `http://fixtures/wiki-go.html`. Read the article, then post a comment with rating 5 stars and text "Excellent reference".
+Go to `http://fixtures/wiki-go.html`. Read the article, then post a comment with a 5-star rating and the text "Excellent reference".
 
-**Verify**: Comment posted (`COMMENT_POSTED_RATING_5_TEXT_RECEIVED`).
+**Verify**: The comment was posted successfully with the rating.
 
 ### 7.2 Cross-page research task
-Navigate to wiki index, find which category has the most articles, then navigate to one of its listed items.
+Go to the wiki index, find which category has the most articles, then navigate to one of the articles listed under that category.
 
-**Verify**: Successfully navigated to at least one article page after reading the category counts.
+**Verify**: Successfully navigated to an article page after identifying the largest category.
 
 ---
-

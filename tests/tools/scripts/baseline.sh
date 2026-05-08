@@ -434,4 +434,63 @@ if echo "$S" | grep -q "PLAN_PRO_PRICE_29" && echo "$S" | grep -q "PLAN_PRO_LIMI
 S=$(curl -sf "$BASE/tabs/$T/text?mode=raw&format=text" -H "$AUTH")
 if echo "$S" | grep -q "PLAN_FREE_PRICE_0" && echo "$S" | grep -q "PLAN_PRO_PRICE_29" && echo "$S" | grep -q "PLAN_ENTERPRISE_PRICE_CUSTOM"; then REC 38 2 pass "all-plans"; else REC 38 2 fail "plan miss"; fi
 
+# Group 39 — file upload
+NAV "http://fixtures/upload.html"
+B64=$(printf 'hello upload test' | base64)
+curl -sf -X POST "$BASE/upload?tabId=$T" -H "$AUTH" -H "Content-Type: application/json" -d "{\"selector\":\"#file-input\",\"files\":[\"$B64\"]}" > /dev/null
+S=$(curl -sf "$BASE/tabs/$T/text?mode=raw&format=text" -H "$AUTH")
+echo "$S" | grep -q "UPLOAD_FILE_RECEIVED" && echo "$S" | grep -q "UPLOAD_COUNT=1" && REC 39 1 pass "uploaded" || REC 39 1 fail "upload miss"
+
+# Group 40 — double-click inline edit
+NAV "http://fixtures/dblclick.html"
+ACT '{"kind":"dblclick","selector":"#cell-1"}' > /dev/null
+S=$(curl -sf "$BASE/tabs/$T/text?mode=raw&format=text" -H "$AUTH")
+echo "$S" | grep -q "CELL_EDITING_MODE_ACTIVE" && REC 40 1 pass "editing" || REC 40 1 fail "dblclick miss"
+ACT '{"kind":"fill","selector":"#cell-1 input","text":"Alicia"}' > /dev/null
+ACT '{"kind":"press","key":"Enter"}' > /dev/null
+S=$(curl -sf "$BASE/tabs/$T/text?mode=raw&format=text" -H "$AUTH")
+echo "$S" | grep -q "CELL_VALUE_UPDATED=Alicia" && REC 40 2 pass "updated" || REC 40 2 fail "update miss"
+
+# Group 41 — autocomplete / typeahead
+NAV "http://fixtures/autocomplete.html"
+ACT '{"kind":"type","selector":"#search-input","text":"pyt"}' > /dev/null
+S=$(curl -sf "$BASE/tabs/$T/text?mode=raw&format=text" -H "$AUTH")
+echo "$S" | grep -q "SUGGESTIONS_VISIBLE_COUNT_2" && REC 41 1 pass "suggestions" || REC 41 1 fail "suggest miss"
+ACT '{"kind":"click","selector":"#suggestions li[data-value=\"Python\"]"}' > /dev/null
+S=$(curl -sf "$BASE/tabs/$T/text?mode=raw&format=text" -H "$AUTH")
+echo "$S" | grep -q "AUTOCOMPLETE_SELECTED=Python" && REC 41 2 pass "selected" || REC 41 2 fail "select miss"
+
+# Group 42 — toast notifications (tests wait --not-text)
+NAV "http://fixtures/toast.html"
+ACT '{"kind":"click","selector":"#save-btn"}' > /dev/null
+S=$(curl -sf "$BASE/tabs/$T/text?mode=raw&format=text" -H "$AUTH")
+echo "$S" | grep -q "TOAST_VISIBLE=TOAST_MESSAGE_SAVED_SUCCESSFULLY" && REC 42 1 pass "toast" || REC 42 1 fail "toast miss"
+curl -sf -X POST "$BASE/tabs/$T/wait" -H "$AUTH" -H "Content-Type: application/json" -d '{"notText":"TOAST_MESSAGE_SAVED_SUCCESSFULLY","timeout":5000}' > /dev/null
+S=$(curl -sf "$BASE/tabs/$T/text?mode=raw&format=text" -H "$AUTH")
+echo "$S" | grep -q "TOAST_DISMISSED" && REC 42 2 pass "dismissed" || REC 42 2 fail "dismiss miss"
+ACT '{"kind":"click","selector":"#error-btn"}' > /dev/null
+S=$(curl -sf "$BASE/tabs/$T/text?mode=raw&format=text" -H "$AUTH")
+echo "$S" | grep -q "TOAST_VISIBLE=TOAST_MESSAGE_ERROR_FAILED" && REC 42 3 pass "error toast" || REC 42 3 fail "error miss"
+
+# Group 43 — staff directory (content discovery)
+NAV "http://fixtures/directory.html"
+S=$(curl -sf "$BASE/tabs/$T/text?mode=raw&format=text" -H "$AUTH")
+echo "$S" | grep -q "VERIFY_DIRECTORY_PAGE_90909" && echo "$S" | grep -q "TOTAL_STAFF_13" && REC 43 1 pass "loaded" || REC 43 1 fail "load miss"
+ACT '{"kind":"click","selector":"#dept-eng-header"}' > /dev/null
+S=$(curl -sf "$BASE/tabs/$T/text?mode=raw&format=text" -H "$AUTH")
+if echo "$S" | grep -q "DEPT_EXPANDED=ENG" && echo "$S" | grep -q "ada@company.test"; then REC 43 2 pass "eng expanded"; else REC 43 2 fail "expand miss"; fi
+
+# Group 44 — multi-step wizard (DOM mutation / robustness)
+NAV "http://fixtures/wizard.html"
+ACT '{"kind":"fill","selector":"#wiz-name","text":"Jane Smith"}' > /dev/null
+ACT '{"kind":"fill","selector":"#wiz-email","text":"jane@test.com"}' > /dev/null
+ACT '{"kind":"click","selector":"#next-1"}' > /dev/null
+S=$(curl -sf "$BASE/tabs/$T/text?mode=raw&format=text" -H "$AUTH")
+echo "$S" | grep -q "WIZARD_STEP=2" && REC 44 1 pass "step2" || REC 44 1 fail "step1 miss"
+ACT '{"kind":"select","selector":"#wiz-plan","value":"pro"}' > /dev/null
+ACT '{"kind":"click","selector":"#wiz-notify"}' > /dev/null
+ACT '{"kind":"click","selector":"#next-2"}' > /dev/null
+S=$(curl -sf "$BASE/tabs/$T/text?mode=raw&format=text" -H "$AUTH")
+if echo "$S" | grep -q "WIZARD_STEP=3" && echo "$S" | grep -q "WIZARD_SUMMARY_NAME=Jane Smith" && echo "$S" | grep -q "WIZARD_SUMMARY_PLAN=PRO"; then REC 44 2 pass "confirmed"; else REC 44 2 fail "confirm miss"; fi
+
 echo "TAB=$T"

@@ -1,23 +1,21 @@
 # Group 3: Complex Form
 
 ### 3.1 Fill and submit a complete form
-Navigate to `http://fixtures/form.html`. Complete the entire form:
+Go to `http://fixtures/form.html` and fill out the entire form with the following information, then submit it:
 - Full name: "Agent Test User"
-- Email: "agent@benchmark.test"  
+- Email: "agent@benchmark.test"
 - Phone: "+44 20 9999 0000"
 - Country: United Kingdom
 - Subject: Technical Support
 - Message: "Testing PinchTab form automation"
-- Check newsletter
+- Check the newsletter option
 - Set priority to High
-- Submit
 
-**Verify**: Form submitted successfully. Confirmation shows name "AGENT_TEST_USER".
+**Verify**: The form was submitted and a confirmation appeared.
 
 ### 3.2 Reset and refill
-After submitting, if the form is still accessible (or navigate back), verify you can identify the reset button.
+After submitting, check whether there is a way to reset the form or go back.
 
-**Verify**: Reset/back button or form element found in snapshot.
+**Verify**: A reset or back control is visible on the page.
 
 ---
-

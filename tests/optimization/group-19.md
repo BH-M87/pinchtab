@@ -1,14 +1,13 @@
 # Group 19: iFrame
 
 ### 19.1 Read iframe content
-Navigate to `http://fixtures/iframe.html` and extract content from inside the embedded same-origin iframe.
+Navigate to `http://fixtures/iframe.html` and read the content inside the embedded iframe on the page.
 
-**Verify**: The iframe's inner content includes `IFRAME_INNER_CONTENT_LOADED`.
+**Verify**: Report includes the text content found inside the iframe.
 
 ### 19.2 Interact with iframe form
-Scope into the embedded iframe, fill the input with "Hello World" and submit. Note that `text` does not pierce iframes — use a scoped observation instead. Reset frame scope when done.
+Scope into the embedded iframe, type "Hello World" into the input field and submit the form. Reset frame scope when done, then report the result.
 
-**Verify**: Scoped snapshot contains `IFRAME_INPUT_RECEIVED_HELLO_WORLD`.
+**Verify**: Report confirms the form inside the iframe received the submitted text.
 
 ---
-

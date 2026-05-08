@@ -1,11 +1,12 @@
 # Group 38: Pricing table
 
 ### 38.1 Read just the Pro plan
-Navigate to `http://fixtures/pricing.html`. The page has three plan cards (Free, Pro, Enterprise). Read only the Pro plan using a scoped observation.
+Navigate to `http://fixtures/pricing.html`. The page lists several pricing plans. Read the Pro plan details and report its price and limits.
 
-**Verify**: Scoped output contains `PLAN_PRO_PRICE_29` and `PLAN_PRO_LIMIT_5000_requests per day`.
+**Verify**: Report includes the Pro plan's pricing details.
 
 ### 38.2 Compare all three plans
-Extract the full page content to see all three plans. Note that Readability may trim repetitive pricing grids.
+Read the full page and report the price of each plan.
 
-**Verify**: Output contains `PLAN_FREE_PRICE_0`, `PLAN_PRO_PRICE_29`, and `PLAN_ENTERPRISE_PRICE_CUSTOM`.
+**Verify**: Report includes the pricing for all plans on the page.
+

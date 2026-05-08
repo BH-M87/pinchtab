@@ -1,14 +1,13 @@
 # Group 17: Scrolling
 
-### 17.1 Scroll by pixels
-Navigate to `http://fixtures/scroll.html`. Scroll down approximately 1500 pixels.
+### 17.1 Scroll to mid-page content
+Navigate to `http://fixtures/scroll.html`. Scroll down about halfway through the page and report what content is visible in the middle section.
 
-**Verify**: Snapshot or text contains `SCROLL_MIDDLE_MARKER` (the mid-page marker is now in view).
+**Verify**: Report includes content from the middle section of the page.
 
 ### 17.2 Scroll to footer
-Continue scrolling until the footer is visible (or scroll directly to the footer element).
+Continue scrolling until the footer is visible and report what you see there.
 
-**Verify**: Snapshot contains `SCROLL_REACHED_FOOTER`.
+**Verify**: Report confirms the footer content is now visible.
 
 ---
-

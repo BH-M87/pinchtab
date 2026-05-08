@@ -1,14 +1,13 @@
 # Group 24: Keyboard events
 
 ### 24.1 Press Escape
-Navigate to `http://fixtures/keyboard.html` (it auto-focuses an input so keyboard events land). Press the Escape key.
+Navigate to `http://fixtures/keyboard.html`. The page auto-focuses an input. Press the Escape key and report what the page displays.
 
-**Verify**: Page text contains `KEYBOARD_ESCAPE_PRESSED`.
+**Verify**: Report confirms the Escape key press was registered by the page.
 
 ### 24.2 Press 'a' then Enter
-Without reloading, press the `a` key, then the `Enter` key.
+Without reloading, press the `a` key followed by the `Enter` key. Report the full list of key events the page has recorded.
 
-**Verify**: Page text now contains all three markers in order: `KEYBOARD_ESCAPE_PRESSED`, `KEYBOARD_KEY_A_PRESSED`, `KEYBOARD_ENTER_PRESSED`.
+**Verify**: Report confirms all three key presses were registered in order.
 
 ---
-

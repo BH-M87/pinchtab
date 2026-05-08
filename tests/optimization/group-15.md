@@ -1,29 +1,28 @@
 # Group 15: Complex Data Extraction & Aggregation
 
 ### 15.1 Extract and sum financial data
-Navigate to `http://fixtures/dashboard.html`. Extract revenue and profit values, calculate profit margin.
+Navigate to `http://fixtures/dashboard.html`. Find the revenue and profit figures on the page and calculate the profit margin percentage.
 
-**Verify**: Correctly calculated: profit_margin = (profit / revenue) * 100 (`PROFIT_MARGIN_CALCULATED`).
+**Verify**: Report includes the revenue and profit values found on the page, along with the calculated profit margin.
 
 ### 15.2 Build comparison table from multiple sources
-Visit these 3 pages and compare their feature counts and key features:
-- `http://fixtures/wiki-go.html` (Go: 6 features)
-- `http://fixtures/wiki-python.html` (Python: 7 features)
-- `http://fixtures/wiki-rust.html` (Rust: 5 features)
+Visit these three language wiki pages and compare what you find:
+- `http://fixtures/wiki-go.html`
+- `http://fixtures/wiki-python.html`
+- `http://fixtures/wiki-rust.html`
 
-Report which language has the most features and name 1 feature unique to each.
+For each language, count how many key features are listed. Report the feature counts and identify which language has the most features.
 
-**Verify**: Response is factually correct AND wiki-python.html contains `COMPARISON_TABLE_BUILT`.
+**Verify**: Report includes the feature count for each language and identifies differences between them.
 
 ### 15.3 Extract raw HTML from a target element
-Navigate to `http://fixtures/article.html` and extract the HTML of the main `article` element.
+Navigate to `http://fixtures/article.html` and extract the HTML content of the main article element on the page.
 
-**Verify**: Extracted HTML contains `VERIFY_ARTICLE_PAGE_41414`.
+**Verify**: The extracted HTML captures the full article content from the page.
 
 ### 15.4 Inspect a stable computed CSS property
-Navigate to `http://fixtures/pricing.html` and inspect the computed CSS for the Pro plan card. Report the computed `display` value.
+Navigate to `http://fixtures/pricing.html` and find the Pro plan card. Report its computed `display` CSS value.
 
-**Verify**: The computed value is `flex`.
+**Verify**: The computed display value is reported correctly.
 
 ---
-

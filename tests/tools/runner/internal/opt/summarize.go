@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 )
 
 func RunSummarize(argv []string, stdout, stderr io.Writer) int {
@@ -101,7 +102,7 @@ func RunSummarize(argv []string, stdout, stderr io.Writer) int {
 	}
 
 	var missing []string
-	for g := 0; g <= 38; g++ {
+	for g := 0; g <= maxGroup(); g++ {
 		count := groupSizes[g]
 		for s := 1; s <= count; s++ {
 			id := fmt.Sprintf("%d.%d", g, s)
@@ -111,11 +112,15 @@ func RunSummarize(argv []string, stdout, stderr io.Writer) int {
 		}
 	}
 
-	// Parse browser ops from transcripts
+	// Count baseline ops from baseline.sh
+	baselineOps := countBaselineOps()
+
+	// Parse browser ops and agent durations from transcripts
 	ptRe := regexp.MustCompile(`\./scripts/pt\s+(\w+)`)
 	var totalOps int
 	cmdTypes := make(map[string]int)
 	var hasTranscripts bool
+	var totalAgentDurationMs float64
 
 	for _, f := range expandGlobs(transcriptFiles, stderr) {
 		fh, err := os.Open(f)
@@ -125,14 +130,23 @@ func RunSummarize(argv []string, stdout, stderr io.Writer) int {
 		}
 		scanner := bufio.NewScanner(fh)
 		scanner.Buffer(make([]byte, 0, 1024*1024), 10*1024*1024)
+		var firstTS, lastTS string
 		for scanner.Scan() {
+			line := scanner.Bytes()
 			var entry struct {
-				Message struct {
+				Timestamp string `json:"timestamp"`
+				Message   struct {
 					Content json.RawMessage `json:"content"`
 				} `json:"message"`
 			}
-			if err := json.Unmarshal(scanner.Bytes(), &entry); err != nil {
+			if err := json.Unmarshal(line, &entry); err != nil {
 				continue
+			}
+			if entry.Timestamp != "" {
+				if firstTS == "" {
+					firstTS = entry.Timestamp
+				}
+				lastTS = entry.Timestamp
 			}
 			var blocks []struct {
 				Type  string `json:"type"`
@@ -155,6 +169,14 @@ func RunSummarize(argv []string, stdout, stderr io.Writer) int {
 		}
 		_ = fh.Close()
 		hasTranscripts = true
+
+		if firstTS != "" && lastTS != "" {
+			t0, err0 := time.Parse(time.RFC3339Nano, firstTS)
+			t1, err1 := time.Parse(time.RFC3339Nano, lastTS)
+			if err0 == nil && err1 == nil {
+				totalAgentDurationMs += t1.Sub(t0).Seconds() * 1000
+			}
+		}
 	}
 
 	usage, _ := report["run_usage"].(map[string]any)
@@ -169,25 +191,39 @@ func RunSummarize(argv []string, stdout, stderr io.Writer) int {
 	type row struct {
 		metric, baseline, agent string
 	}
+	blSteps := totalBaselineSteps()
+	blLabel := fmt.Sprintf("%d/%d", blSteps, blSteps)
 	rows := []row{
-		{"Steps completed", "87/87", fmt.Sprintf("%d/87", totalSteps)},
-		{"Verified pass", "87/87", fmt.Sprintf("%d/87", verifyPass)},
+		{"Steps completed", blLabel, fmt.Sprintf("%d/%d", totalSteps, blSteps)},
+		{"Verified pass", blLabel, fmt.Sprintf("%d/%d", verifyPass, blSteps)},
 	}
 	if hasTranscripts {
+		blOpsStr := ""
+		blOpsRatio := ""
+		if baselineOps > 0 {
+			blOpsStr = fmtInt(int64(baselineOps))
+			blOpsRatio = fmt.Sprintf("%.1f", float64(baselineOps)/float64(blSteps))
+		}
 		rows = append(rows,
-			row{"Browser ops", "246", fmtInt(int64(totalOps))},
-			row{"Ops/step", "2.8", fmt.Sprintf("%.1f", float64(totalOps)/87.0)},
-			row{"Ratio", "1.0x", fmt.Sprintf("%.2fx", float64(totalOps)/246.0)},
+			row{"Browser ops", blOpsStr, fmtInt(int64(totalOps))},
+			row{"Ops/step", blOpsRatio, fmt.Sprintf("%.1f", float64(totalOps)/float64(blSteps))},
 		)
 	}
 	rows = append(rows, row{"Errors", "0", fmt.Sprintf("%d", failed)})
 
-	if stepsWithDuration > 0 {
+	if totalAgentDurationMs > 0 {
+		avgMs := totalAgentDurationMs / float64(blSteps)
+		rows = append(rows,
+			row{"", "", ""},
+			row{"Avg time/step", "", fmt.Sprintf("%.1fs", avgMs/1000)},
+			row{"Total time", "", fmtDuration(totalAgentDurationMs)},
+		)
+	} else if stepsWithDuration > 0 {
 		avgMs := totalDurationMs / float64(stepsWithDuration)
 		rows = append(rows,
 			row{"", "", ""},
 			row{"Avg time/step", "", fmt.Sprintf("%.1fs", avgMs/1000)},
-			row{"Total step time", "", fmtDuration(totalDurationMs)},
+			row{"Total time", "", fmtDuration(totalDurationMs)},
 		)
 	}
 
@@ -307,6 +343,44 @@ func fmtInt(n int64) string {
 		b.WriteRune(c)
 	}
 	return b.String()
+}
+
+// countBaselineOps counts browser operations in scripts/baseline.sh.
+// Each invocation of a wrapper (ACT, NAV, SNAP, EV) or a direct curl call
+// to $BASE counts as one operation. Function definitions (lines containing
+// "() {") are excluded to avoid counting the wrapper bodies.
+func countBaselineOps() int {
+	candidates := []string{
+		"scripts/baseline.sh",
+		"tests/tools/scripts/baseline.sh",
+	}
+	var path string
+	for _, c := range candidates {
+		if _, err := os.Stat(c); err == nil {
+			path = c
+			break
+		}
+	}
+	if path == "" {
+		return 0
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return 0
+	}
+	wrapperRe := regexp.MustCompile(`\b(ACT|NAV|SNAP|EV|FRAME)\b[\s'"{(]`)
+	curlRe := regexp.MustCompile(`\bcurl `)
+	funcDefRe := regexp.MustCompile(`\(\)\s*\{`)
+
+	var total int
+	for _, line := range strings.Split(string(data), "\n") {
+		if funcDefRe.MatchString(line) {
+			continue
+		}
+		total += len(wrapperRe.FindAllString(line, -1))
+		total += len(curlRe.FindAllString(line, -1))
+	}
+	return total
 }
 
 func expandGlobs(patterns []string, stderr io.Writer) []string {

@@ -75,6 +75,39 @@ pinchtab nav <url> --block-images --snap
 
 ---
 
+## Iframe Shortcuts
+
+Default `snap` (without `-i`) **flattens same-origin iframes** — nested iframe content appears as regular refs in the tree. Ref-based actions (`click`, `fill`, etc.) work **across iframe boundaries** without `frame` scope changes.
+
+```
+# snap already shows everything, including nested iframes:
+# e0:heading "Outer page"
+# e1:Iframe
+# e2:heading "Level 2"
+# e3:Iframe
+# e4:heading "Level 3"
+# e5:button "Deep button"    ← 3 levels deep, but clickable as e5
+
+pinchtab click e5              # works cross-boundary — no frame hops needed
+```
+
+**When you DO need `frame`:** only for scoped `text` reads. `text` respects the current frame scope, so to read text inside a nested iframe you must hop. Chain the hops without intermediate snaps — use CSS selectors or iframe IDs from the initial `snap`:
+
+```bash
+# BAD: snap at each level (expensive)
+pinchtab frame e1; pinchtab snap; pinchtab frame e1; pinchtab snap; pinchtab text
+
+# GOOD: chain hops directly, read once
+pinchtab frame '#level-2'
+pinchtab frame '#level-3'
+pinchtab text                  # now scoped to deepest frame
+pinchtab frame main            # back to top
+```
+
+**Summary:** Use refs for **actions** (zero frame hops). Use `frame` chains for **text reads** (skip intermediate snaps).
+
+---
+
 ## Recovery Patterns
 
 ### 403 Forbidden

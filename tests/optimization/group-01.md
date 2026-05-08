@@ -1,34 +1,33 @@
 # Group 1: Reading & Extracting Real Content
 
 ### 1.1 Get the full list of categories from the wiki index
-Navigate to `http://fixtures/wiki.html` and extract all category names with their article counts.
+Go to `http://fixtures/wiki.html` and tell me what content categories are listed and how many articles each one has.
 
-**Verify**: Can name at least 2 categories and their article counts (e.g. "Programming Languages: 12 articles").
+**Verify**: Report lists the categories with their article counts.
 
 ### 1.2 Navigate by clicking a link
-From the wiki index, click the "Go (programming language)" link to navigate to the Go article.
+From the wiki index, click the link for the Go programming language article to navigate to it.
 
-**Verify**: You are now on the Go article page (not the wiki index).
+**Verify**: You are now on the Go article page, not the wiki index.
 
 ### 1.3 Extract structured data from a table
-On the Go article, read the infobox table and answer: Who designed Go, and what year did it first appear?
+On the Go article, read the infobox table and tell me who designed Go and what year it first appeared.
 
-**Verify**: Answer contains "Robert Griesemer" (or "Rob Pike" or "Ken Thompson") and "2009".
+**Verify**: Answer includes the designer name(s) and the year.
 
 ### 1.4 Count list items
 On the Go article, count how many key features are listed.
 
-**Verify**: Answer is 6 (verify against `FEATURE_COUNT_6`).
+**Verify**: Answer includes the number of features found.
 
 ### 1.5 Read all article headlines from articles page
-Navigate to `http://fixtures/articles.html` and list all article titles.
+Go to `http://fixtures/articles.html` and list all article titles you find.
 
-**Verify**: Found at least 3 articles including "The Future of Artificial Intelligence".
+**Verify**: Report includes the article titles from the page.
 
 ### 1.6 Read dashboard metrics
-Navigate to `http://fixtures/dashboard.html` and extract: Total Users, Revenue, and Conversion Rate.
+Go to `http://fixtures/dashboard.html` and tell me the Total Users, Revenue, and Conversion Rate shown on the page.
 
-**Verify**: Found `24,582` users AND `$1,284,930` revenue.
+**Verify**: Report includes the user count and revenue figures from the dashboard.
 
 ---
-

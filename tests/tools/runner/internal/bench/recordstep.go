@@ -258,6 +258,11 @@ func computeTiming(resultsDir, benchmarkType string) timingInfo {
 
 	lastStepEndMs := readMsFile(lastStepEndFile)
 
+	// Discard stale last_step_end from a previous run.
+	if lastStepEndMs > 0 && lastStepEndMs < runStartMs {
+		lastStepEndMs = runStartMs
+	}
+
 	var durationMs int64
 	if lastStepEndMs > 0 && stepEndMs >= lastStepEndMs {
 		durationMs = stepEndMs - lastStepEndMs
