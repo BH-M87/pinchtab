@@ -147,6 +147,7 @@ func testRuntimeConfig() *config.RuntimeConfig {
 		AllowMacro:         false,
 		AllowScreencast:    false,
 		AllowDownload:      false,
+		AllowCookies:       false,
 		AllowUpload:        false,
 		AttachEnabled:      false,
 		AttachAllowHosts:   []string{"127.0.0.1", "localhost", "::1"},

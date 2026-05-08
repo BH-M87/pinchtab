@@ -102,6 +102,7 @@ export const securityEndpointRows = [
   ["allowMacro", "Allow macro"],
   ["allowScreencast", "Allow screencast"],
   ["allowDownload", "Allow download"],
+  ["allowCookies", "Allow cookies"],
   ["allowUpload", "Allow upload"],
   [
     "allowNetworkIntercept",

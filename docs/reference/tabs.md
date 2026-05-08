@@ -252,7 +252,7 @@ A `pinchtab cookies` CLI command is available; today it exposes a single subcomm
 pinchtab cookies clear     # clear all cookies via CDP (affects all origins)
 ```
 
-Reading and writing cookie payloads is HTTP-only.
+Reading, writing, and clearing cookies requires `security.allowCookies=true`.
 
 ## Metrics
 

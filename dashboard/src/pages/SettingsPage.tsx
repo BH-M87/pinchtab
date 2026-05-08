@@ -212,6 +212,7 @@ export default function SettingsPage() {
         backendConfig.security.allowMacro,
         backendConfig.security.allowScreencast,
         backendConfig.security.allowDownload,
+        backendConfig.security.allowCookies,
         backendConfig.security.allowUpload,
       ].some(Boolean)
     : false;

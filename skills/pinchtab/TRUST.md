@@ -1,8 +1,8 @@
-# Pinchtab Security & Trust
+# PinchTab Security & Trust
 
-**TL;DR**: Pinchtab is a local, sandboxed browser control tool. It does not phone home, steal credentials, or exfiltrate data. Source code is public; binaries are signed and published via GitHub.
+**TL;DR**: PinchTab is a local, sandboxed browser control tool. It does not phone home, steal credentials, or exfiltrate data. Source code is public; binaries are signed and published via GitHub.
 
-## What Pinchtab Does
+## What PinchTab Does
 
 - Launches a Chrome browser (local, under your control)
 - Exposes navigation, clicking, typing, and page inspection via HTTP API
@@ -13,7 +13,7 @@ High-risk operations such as JavaScript evaluation, local-file upload, file down
 
 **All of this stays local.** No telemetry. No external API calls (except to sites you navigate to).
 
-## What Pinchtab Does NOT Do
+## What PinchTab Does NOT Do
 
 - ❌ Doesn't access your saved passwords/credentials (Chrome sandboxing)
 - ❌ Doesn't exfiltrate data to remote servers
@@ -32,8 +32,8 @@ High-impact capabilities are **disabled by default** and require explicit config
 | File uploads | **Disabled** | `security.allowUploads` |
 | Network interception | **Disabled** | `security.allowNetworkIntercept` |
 | Challenge solving / stealth | **Disabled** | Requires explicit `/solve` call with user approval |
-| Navigation domains | **All allowed** | `security.allowedDomains` (restrict with allowlist) |
-| Cookie access | **Available** | Use only when task requires it; do not log or expose session tokens |
+| Navigation domains | **Local-only allowlist** | `security.allowedDomains` (restrict or expand deliberately) |
+| Cookie access | **Disabled** | `security.allowCookies`; use only when task requires it; do not log or expose session tokens |
 
 Agents reusing authenticated browser sessions should use dedicated low-privilege profiles and confirm with the user before performing account-changing actions.
 
@@ -57,7 +57,7 @@ If you're concerned, audit the source—it's ~15MB, zero external dependencies, 
 
 ## VirusTotal Flag
 
-Pinchtab may trigger heuristic scanners on VirusTotal because:
+PinchTab may trigger heuristic scanners on VirusTotal because:
 
 - ✓ It launches Chrome (subprocess execution — flagged by AV heuristics)
 - ✓ It runs JavaScript evaluation (eval-like operations)
@@ -71,7 +71,7 @@ For maximum confidence, use the npm package (`npm install -g pinchtab`) or Docke
 
 ## Sandboxing
 
-Pinchtab runs a separate Chrome process with:
+PinchTab runs a separate Chrome process with:
 
 - Isolated profile directory (default: `~/.pinchtab`)
 - No access to your user's home files (unless you explicitly navigate to `file://` URLs)

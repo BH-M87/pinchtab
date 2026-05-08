@@ -89,7 +89,7 @@ All tool names are prefixed with `pinchtab_`.
 | `pinchtab_list_tabs` | List all open tabs. No params. |
 | `pinchtab_close_tab` | Close a tab. Optional: `tabId` (uses current/default tab when omitted). |
 | `pinchtab_health` | Check server health. No params. |
-| `pinchtab_cookies` | Get cookies for current page. Optional: `tabId`. |
+| `pinchtab_cookies` | Get cookies for current page. Optional: `tabId`. Requires `security.allowCookies: true`. |
 | `pinchtab_connect_profile` | Return connect status for a profile. Required: `profile`. |
 
 ### Utility
@@ -169,6 +169,7 @@ MCP tools surface errors as tool errors (not protocol-level errors). Common case
 | Connection refused | PinchTab not running | Run `pinchtab mcp` locally, or start with `pinchtab server` / `pinchtab daemon start` |
 | `ref not found` | Stale element ref | Re-run `pinchtab_snapshot` |
 | `evaluate not allowed` (403) | `security.allowEvaluate` is false | Enable in config or use `find`/`snap` instead |
+| `cookies disabled` (403) | `security.allowCookies` is false | Enable only for an explicitly approved cookie-inspection task |
 | `invalid URL` | Missing `http://` or `https://` | Include full scheme in URL |
 
 ---

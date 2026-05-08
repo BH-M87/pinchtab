@@ -62,6 +62,7 @@ type securityConfigJSON struct {
 	AllowMacro             *bool          `json:"allowMacro"`
 	AllowScreencast        *bool          `json:"allowScreencast"`
 	AllowDownload          *bool          `json:"allowDownload"`
+	AllowCookies           *bool          `json:"allowCookies"`
 	AllowNetworkIntercept  *bool          `json:"allowNetworkIntercept"`
 	AllowedDomains         []string       `json:"allowedDomains"`
 	DownloadAllowedDomains []string       `json:"downloadAllowedDomains"`

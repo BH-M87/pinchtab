@@ -118,15 +118,28 @@ func TestStrategy_RegisterRoutes_LocksSensitiveShorthandRoutes(t *testing.T) {
 	mux := http.NewServeMux()
 	s.RegisterRoutes(mux)
 
-	req := httptest.NewRequest("POST", "/evaluate", strings.NewReader(`{"expression":"1+1"}`))
-	rec := httptest.NewRecorder()
-	mux.ServeHTTP(rec, req)
-
-	if rec.Code != 403 {
-		t.Fatalf("expected 403, got %d: %s", rec.Code, rec.Body.String())
+	tests := []struct {
+		method  string
+		path    string
+		body    string
+		setting string
+	}{
+		{method: "POST", path: "/evaluate", body: `{"expression":"1+1"}`, setting: "security.allowEvaluate"},
+		{method: "GET", path: "/cookies", setting: "security.allowCookies"},
+		{method: "DELETE", path: "/cookies", setting: "security.allowCookies"},
 	}
-	if !strings.Contains(rec.Body.String(), "security.allowEvaluate") {
-		t.Fatalf("expected lock response to mention security.allowEvaluate, got %s", rec.Body.String())
+
+	for _, tt := range tests {
+		req := httptest.NewRequest(tt.method, tt.path, strings.NewReader(tt.body))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		if rec.Code != 403 {
+			t.Fatalf("%s %s expected 403, got %d: %s", tt.method, tt.path, rec.Code, rec.Body.String())
+		}
+		if !strings.Contains(rec.Body.String(), tt.setting) {
+			t.Fatalf("%s %s expected lock response to mention %s, got %s", tt.method, tt.path, tt.setting, rec.Body.String())
+		}
 	}
 }
 

@@ -132,6 +132,7 @@ export interface BackendSecurityConfig {
   allowMacro: boolean;
   allowScreencast: boolean;
   allowDownload: boolean;
+  allowCookies: boolean;
   allowUpload: boolean;
   allowNetworkIntercept: boolean;
   allowedDomains: string[];
@@ -261,6 +262,7 @@ export const defaultBackendConfig: BackendConfig = {
     allowMacro: false,
     allowScreencast: false,
     allowDownload: false,
+    allowCookies: false,
     allowUpload: false,
     allowNetworkIntercept: false,
     allowedDomains: ["127.0.0.1", "localhost", "::1"],

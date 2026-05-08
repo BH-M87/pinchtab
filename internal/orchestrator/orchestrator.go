@@ -311,6 +311,10 @@ func (o *Orchestrator) AllowsDownload() bool {
 	return o != nil && o.runtimeCfg != nil && o.runtimeCfg.AllowDownload
 }
 
+func (o *Orchestrator) AllowsCookies() bool {
+	return o != nil && o.runtimeCfg != nil && o.runtimeCfg.AllowCookies
+}
+
 func (o *Orchestrator) AllowsUpload() bool {
 	return o != nil && o.runtimeCfg != nil && o.runtimeCfg.AllowUpload
 }

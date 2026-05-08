@@ -19,6 +19,7 @@ The default security posture is:
 - `security.allowMacro = false`
 - `security.allowScreencast = false`
 - `security.allowDownload = false`
+- `security.allowCookies = false`
 - `security.allowUpload = false`
 - `security.attach.enabled = false`
 - `security.attach.allowHosts = ["127.0.0.1", "localhost", "::1"]`
@@ -188,6 +189,7 @@ Some endpoint families expose much more power than normal navigation and inspect
 - `security.allowMacro`
 - `security.allowScreencast`
 - `security.allowDownload`
+- `security.allowCookies`
 - `security.allowUpload`
 
 Why they are considered dangerous:
@@ -196,6 +198,7 @@ Why they are considered dangerous:
 - `macro` can trigger higher-level automation flows
 - `screencast` can stream live page contents
 - `download` can fetch and persist remote content. When `security.downloadAllowedDomains` is set, listed domains bypass private-IP SSRF checks (intended for internal hosts such as Docker services). `["*"]` matches every host and disables all private-IP protection on the download endpoint.
+- `cookies` can read, write, or clear browser session tokens for the current page
 - `upload` can push local files into browser flows
 
 These are not the same as authentication.
@@ -320,6 +323,7 @@ For a secure local setup:
     "allowMacro": false,
     "allowScreencast": false,
     "allowDownload": false,
+    "allowCookies": false,
     "allowUpload": false,
     "allowedDomains": ["127.0.0.1", "localhost", "::1"],
     "trustedProxyCIDRs": [],

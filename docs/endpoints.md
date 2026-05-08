@@ -291,8 +291,10 @@ POST /upload
 POST /tabs/{id}/upload
 GET  /cookies
 POST /cookies
+DELETE /cookies
 GET  /tabs/{id}/cookies
 POST /tabs/{id}/cookies
+DELETE /tabs/{id}/cookies
 GET  /clipboard/read
 POST /clipboard/write
 POST /clipboard/copy
@@ -304,6 +306,7 @@ GET  /cache/status
 Notes:
 
 - download and upload endpoints are gated by `security.allowDownload` and `security.allowUpload`
+- cookie endpoints (`GET/POST/DELETE /cookies`, plus tab-scoped variants) are gated by `security.allowCookies`
 - download automatically decompresses `.gz` files and returns the decompressed content
 - `security.downloadAllowedDomains` can whitelist specific domains (bypasses SSRF checks for those domains). Setting `["*"]` matches every host and disables all private-IP protection on the download endpoint.
 - clipboard endpoints are gated by `security.allowClipboard`
@@ -610,6 +613,7 @@ These gates are not ordinary feature toggles. Enabling them is a documented, non
 
 - `/evaluate` and `/tabs/{id}/evaluate` -> `security.allowEvaluate`
 - `/download` and `/tabs/{id}/download` -> `security.allowDownload`
+- `GET/POST/DELETE /cookies` and `GET/POST/DELETE /tabs/{id}/cookies` -> `security.allowCookies`
 - `/upload` and `/tabs/{id}/upload` -> `security.allowUpload`
 - clipboard routes -> `security.allowClipboard`
 - attach routes -> `security.attach`

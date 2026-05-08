@@ -41,7 +41,7 @@ func RegisterDefaultProxyRoutes(mux *http.ServeMux, orch *orchestrator.Orchestra
 		"GET /snapshot", "GET /screenshot", "GET /text",
 		"POST /navigate", "POST /action", "POST /actions", "POST /evaluate",
 		"POST /tab", "POST /lock", "POST /unlock",
-		"GET /cookies", "POST /cookies",
+		"GET /cookies", "POST /cookies", "DELETE /cookies",
 		"GET /download", "POST /upload",
 		"GET /stealth/status", "POST /fingerprint/rotate",
 		"GET /screencast", "GET /screencast/tabs",

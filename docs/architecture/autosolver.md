@@ -2,7 +2,7 @@
 
 ## Overview
 
-The AutoSolver system provides modular, semantic-first browser automation for Pinchtab. It evolves the existing `internal/solver` framework (PR #395) into a general-purpose automation agent capable of handling CAPTCHAs, login flows, signup flows, multi-step navigation, and onboarding sequences.
+The AutoSolver system provides modular, semantic-first browser automation for PinchTab. It evolves the existing `internal/solver` framework (PR #395) into a general-purpose automation agent capable of handling CAPTCHAs, login flows, signup flows, multi-step navigation, and onboarding sequences.
 
 ### Design Principles
 
@@ -211,7 +211,7 @@ as := autosolver.New(cfg, semanticEngine, nil)
 as.Registry().Register(&solvers.MySolver{})
 ```
 
-### Using with Pinchtab Bridge
+### Using with PinchTab Bridge
 
 ```go
 // Create Page + Executor from a bridge tab
@@ -229,7 +229,7 @@ if result.Solved {
 
 ## Comparison with browser-use
 
-| Aspect | browser-use | Pinchtab AutoSolver |
+| Aspect | browser-use | PinchTab AutoSolver |
 |--------|-------------|-------------------|
 | Decision engine | LLM per step | Semantic first, LLM fallback |
 | DOM handling | Full DOM/screenshot each step | Trimmed HTML, a11y tree |

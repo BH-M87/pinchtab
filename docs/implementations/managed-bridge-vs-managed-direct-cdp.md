@@ -1,11 +1,11 @@
 # Bridge vs Direct-CDP
 
-This page compares two ways Pinchtab can manage a browser instance:
+This page compares two ways PinchTab can manage a browser instance:
 
 - `managed + bridge`
 - `managed + direct-cdp`
 
-Both are **managed** because Pinchtab owns the instance lifecycle.
+Both are **managed** because PinchTab owns the instance lifecycle.
 The difference is where the browser control logic lives and how the server reaches Chrome.
 
 ## Short Version
@@ -25,13 +25,13 @@ The direct-CDP model removes that hop and keeps control in the main server.
 
 ```text
 Managed + bridge
-  Pinchtab server
-    └─ Pinchtab bridge child
+  PinchTab server
+    └─ PinchTab bridge child
          └─ Chrome
               └─ Tabs
 
 Managed + direct-cdp
-  Pinchtab server
+  PinchTab server
     └─ Chrome
          └─ Tabs
 ```
@@ -40,7 +40,7 @@ Managed + direct-cdp
 
 ### What it is
 
-Pinchtab starts a child `pinchtab bridge` process for each managed instance.
+PinchTab starts a child `pinchtab bridge` process for each managed instance.
 That bridge owns one browser and exposes a single-instance HTTP API.
 The main server routes instance and tab requests to that child.
 
@@ -77,7 +77,7 @@ agent -> server -> bridge -> Chrome
 
 ### What it is
 
-Pinchtab starts Chrome itself and keeps the CDP session inside the main server process.
+PinchTab starts Chrome itself and keeps the CDP session inside the main server process.
 There is no bridge child and no extra per-instance HTTP server.
 
 ### Communication Path
@@ -154,7 +154,7 @@ direct-cdp  = better efficiency
 
 Today, the intended architecture is:
 
-- `managed + bridge` for Pinchtab-launched instances
+- `managed + bridge` for PinchTab-launched instances
 - `attached + direct-cdp` for externally managed browsers
 
 `managed + direct-cdp` is a useful future model, but it is primarily an architectural option, not the default implementation.

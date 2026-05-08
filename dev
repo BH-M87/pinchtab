@@ -49,6 +49,7 @@ COMMANDS=(
   "doctor:🩺:Setup dev environment"
   "install:📦:Build & install to ~/.local/bin (override with PINCHTAB_INSTALL_DIR)"
   "  skills:📦:Symlink ./skills/* into ~/.claude/skills (override with CLAUDE_SKILLS_DIR)"
+  "pack plugin:🎁:Build a ClawHub-ready plugin tarball (optionally pass <version>)"
   "check go:🧪:Go only"
   "check dashboard:🧪:Dashboard only"
   "check npm:🧪:npm package only"
@@ -287,6 +288,8 @@ run_command() {
     "build")        exec bash scripts/build.sh ;;
     "install")      exec bash scripts/install.sh ;;
     "install skills") exec bash scripts/install-skills.sh ;;
+    "pack plugin") exec bash scripts/pack-plugin.sh ;;
+    "pack plugin "*) exec bash scripts/pack-plugin.sh "${target#pack plugin }" ;;
     "binary")       exec bash scripts/binary.sh ;;
     "binary all"|"binaries") exec bash scripts/binary.sh all ;;
     "all")
@@ -403,6 +406,19 @@ if [ $# -gt 0 ]; then
         run_command "install $2"
       else
         run_command "install"
+      fi
+      ;;
+    pack)
+      if [ "${2:-}" = "plugin" ]; then
+        if [ $# -gt 2 ]; then
+          run_command "pack plugin $3"
+        else
+          run_command "pack plugin"
+        fi
+      else
+        echo "  ${ERROR}Unknown pack target: ${2:-}${NC}" >&2
+        echo "  Usage: dev pack plugin [<version>]" >&2
+        exit 1
       fi
       ;;
     test)

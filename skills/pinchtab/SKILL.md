@@ -60,7 +60,7 @@ Rules: only `nav <url>` auto-starts the default local server; `snap`, `text`, `h
 - Do not upload local files unless the user explicitly names the file and the destination flow requires it.
 - Do not save screenshots, PDFs, or downloads to arbitrary paths — use a user-specified path or a safe temporary/workspace directory.
 - Do not use PinchTab to inspect unrelated local files, browser secrets, stored credentials, or system configuration outside the task.
-- Cookie data (`pinchtab cookies`) contains session credentials — do not log, copy, or expose cookie values to untrusted contexts. Use only when the task specifically requires cookie inspection.
+- Cookie access is disabled by default; do not inspect, change, or clear cookies without explicit user approval.
 - Network exports (`pinchtab network-export`) may contain private URLs, auth tokens, and response bodies. Omit `--body` for sensitive sessions. Delete or redact export files after use.
 
 ## Selectors
@@ -217,8 +217,8 @@ These operations are high-impact and gated by security policy. Do not use unless
 
 ```bash
 pinchtab eval "document.title"                      # --await-promise for async; requires security.allowEvaluate: true
-pinchtab download <url> -o /tmp/out.bin             # requires security.allowDownloads: true
-pinchtab upload /absolute/path -s <css>             # requires security.allowUploads: true
+pinchtab download <url> -o /tmp/out.bin             # requires security.allowDownload: true
+pinchtab upload /absolute/path -s <css>             # requires security.allowUpload: true
 ```
 
 - `eval`: narrow read-only DOM inspection unless user asks for mutation. Blocked by default (`security.allowEvaluate: false`).

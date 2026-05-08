@@ -1,5 +1,5 @@
 /**
- * Pinchtab OpenClaw Plugin
+ * PinchTab OpenClaw Plugin
  *
  * Two tools:
  * - `pinchtab`: Full-featured browser control with all actions
@@ -25,8 +25,8 @@ function toRuntimeContext(ctx: PluginToolContext): PluginRuntimeContext {
 
 export default definePluginEntry({
   id: "pinchtab",
-  name: "Pinchtab",
-  description: "Browser control for AI agents via Pinchtab.",
+  name: "PinchTab",
+  description: "Browser control for AI agents via PinchTab.",
   register(api) {
     const cfg = getConfig(api);
 

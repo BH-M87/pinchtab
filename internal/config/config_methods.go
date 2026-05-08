@@ -7,7 +7,7 @@ func (cfg *RuntimeConfig) EnabledSensitiveEndpoints() []string {
 		return nil
 	}
 
-	enabled := make([]string, 0, 6)
+	enabled := make([]string, 0, 7)
 	if cfg.AllowEvaluate {
 		enabled = append(enabled, "evaluate")
 	}
@@ -19,6 +19,9 @@ func (cfg *RuntimeConfig) EnabledSensitiveEndpoints() []string {
 	}
 	if cfg.AllowDownload {
 		enabled = append(enabled, "download")
+	}
+	if cfg.AllowCookies {
+		enabled = append(enabled, "cookies")
 	}
 	if cfg.AllowUpload {
 		enabled = append(enabled, "upload")

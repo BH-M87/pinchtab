@@ -41,6 +41,9 @@ func TestLoadConfigDefaults(t *testing.T) {
 	if cfg.AllowEvaluate {
 		t.Errorf("default AllowEvaluate = %v, want false", cfg.AllowEvaluate)
 	}
+	if cfg.AllowCookies {
+		t.Errorf("default AllowCookies = %v, want false", cfg.AllowCookies)
+	}
 	if !cfg.EnableActionGuards {
 		t.Errorf("default EnableActionGuards = %v, want true", cfg.EnableActionGuards)
 	}
@@ -364,6 +367,7 @@ func TestApplyFileConfigToRuntimeResetsSecurityFlagsToSafeDefaults(t *testing.T)
 		AllowMacro:      true,
 		AllowScreencast: true,
 		AllowDownload:   true,
+		AllowCookies:    true,
 		AllowUpload:     true,
 		IDPI: IDPIConfig{
 			Enabled: false,
@@ -384,6 +388,9 @@ func TestApplyFileConfigToRuntimeResetsSecurityFlagsToSafeDefaults(t *testing.T)
 	}
 	if cfg.AllowDownload {
 		t.Errorf("ApplyFileConfigToRuntime AllowDownload = %v, want false", cfg.AllowDownload)
+	}
+	if cfg.AllowCookies {
+		t.Errorf("ApplyFileConfigToRuntime AllowCookies = %v, want false", cfg.AllowCookies)
 	}
 	if cfg.AllowUpload {
 		t.Errorf("ApplyFileConfigToRuntime AllowUpload = %v, want false", cfg.AllowUpload)

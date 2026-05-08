@@ -18,6 +18,8 @@ func capabilitySetting(cap routes.Capability) (feature, setting, code string) {
 		return "screencast", "security.allowScreencast", "screencast_disabled"
 	case routes.CapDownload:
 		return "download", "security.allowDownload", "download_disabled"
+	case routes.CapCookies:
+		return "cookies", "security.allowCookies", "cookies_disabled"
 	case routes.CapUpload:
 		return "upload", "security.allowUpload", "upload_disabled"
 	case routes.CapStateExport:

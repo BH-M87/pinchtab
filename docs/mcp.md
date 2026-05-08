@@ -130,7 +130,7 @@ PinchTab currently exposes 38 tools:
 - `pinchtab_list_tabs`
 - `pinchtab_close_tab`
 - `pinchtab_health`
-- `pinchtab_cookies`
+- `pinchtab_cookies` (requires `security.allowCookies`)
 - `pinchtab_connect_profile`
 
 ### Wait Utilities

@@ -745,6 +745,8 @@ func TestOrchestrator_RegisterHandlers_LocksSensitiveRoutes(t *testing.T) {
 	}{
 		{method: "POST", path: "/tabs/tab1/evaluate", body: `{"expression":"1+1"}`, setting: "security.allowEvaluate"},
 		{method: "GET", path: "/tabs/tab1/download", setting: "security.allowDownload"},
+		{method: "GET", path: "/tabs/tab1/cookies", setting: "security.allowCookies"},
+		{method: "DELETE", path: "/tabs/tab1/cookies", setting: "security.allowCookies"},
 		{method: "POST", path: "/tabs/tab1/upload", body: `{}`, setting: "security.allowUpload"},
 		{method: "GET", path: "/instances/inst1/screencast", setting: "security.allowScreencast"},
 	}

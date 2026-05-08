@@ -15,6 +15,7 @@ const (
 	CapMacro            Capability = "macro"
 	CapScreencast       Capability = "screencast"
 	CapDownload         Capability = "download"
+	CapCookies          Capability = "cookies"
 	CapUpload           Capability = "upload"
 	CapStateExport      Capability = "stateExport"
 	CapNetworkIntercept Capability = "networkIntercept"
@@ -90,9 +91,9 @@ var coreEndpoints = []Endpoint{
 	{"GET", "/handoff", "Get handoff status", CapNone, true},
 
 	// Cookies
-	{"GET", "/cookies", "Get cookies", CapNone, true},
-	{"POST", "/cookies", "Set cookies", CapNone, true},
-	{"DELETE", "/cookies", "Clear all cookies", CapNone, true},
+	{"GET", "/cookies", "Get cookies", CapCookies, true},
+	{"POST", "/cookies", "Set cookies", CapCookies, true},
+	{"DELETE", "/cookies", "Clear all cookies", CapCookies, true},
 
 	// Metrics
 	{"GET", "/metrics", "Runtime metrics", CapNone, true},

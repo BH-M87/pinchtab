@@ -18,7 +18,21 @@ import (
 	"github.com/pinchtab/pinchtab/internal/httpx"
 )
 
+func (h *Handlers) ensureCookiesEnabled(w http.ResponseWriter) bool {
+	if h.cookiesEnabled() {
+		return true
+	}
+	httpx.ErrorCode(w, http.StatusForbidden, "cookies_disabled", httpx.DisabledEndpointMessage("cookies", "security.allowCookies"), false, map[string]any{
+		"setting": "security.allowCookies",
+	})
+	return false
+}
+
 func (h *Handlers) HandleGetCookies(w http.ResponseWriter, r *http.Request) {
+	if !h.ensureCookiesEnabled(w) {
+		return
+	}
+
 	tabID := r.URL.Query().Get("tabId")
 	url := r.URL.Query().Get("url")
 	name := r.URL.Query().Get("name")
@@ -132,6 +146,10 @@ type cookieSetRequest struct {
 //
 // @Endpoint DELETE /cookies
 func (h *Handlers) HandleClearCookies(w http.ResponseWriter, r *http.Request) {
+	if !h.ensureCookiesEnabled(w) {
+		return
+	}
+
 	if err := h.ensureChrome(); err != nil {
 		httpx.Error(w, http.StatusServiceUnavailable, err)
 		return
@@ -161,6 +179,10 @@ func (h *Handlers) HandleTabClearCookies(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	if !h.ensureCookiesEnabled(w) {
+		return
+	}
+
 	// Verify tab exists before clearing.
 	if _, _, err := h.tabContext(r, tabID); err != nil {
 		WriteTabContextError(w, err, 404)
@@ -171,6 +193,10 @@ func (h *Handlers) HandleTabClearCookies(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *Handlers) HandleSetCookies(w http.ResponseWriter, r *http.Request) {
+	if !h.ensureCookiesEnabled(w) {
+		return
+	}
+
 	var req cookieRequest
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxBodySize)).Decode(&req); err != nil {
 		httpx.Error(w, 400, fmt.Errorf("decode: %w", err))

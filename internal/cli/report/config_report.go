@@ -20,6 +20,7 @@ func HandleConfigShow(cfg *config.RuntimeConfig) {
 	fmt.Printf("  Macro:          %v\n", cfg.AllowMacro)
 	fmt.Printf("  Screencast:     %v\n", cfg.AllowScreencast)
 	fmt.Printf("  Download:       %v\n", cfg.AllowDownload)
+	fmt.Printf("  Cookies:        %v\n", cfg.AllowCookies)
 	fmt.Printf("  Upload:         %v\n", cfg.AllowUpload)
 	fmt.Println()
 	fmt.Println(styleStdout(headingStyle, "Browser / Instance Defaults"))

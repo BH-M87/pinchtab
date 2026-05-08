@@ -48,6 +48,7 @@ func UpdateSensitiveEndpoints(value string) (*config.RuntimeConfig, bool, error)
 			"macro":            "security.allowMacro",
 			"screencast":       "security.allowScreencast",
 			"download":         "security.allowDownload",
+			"cookies":          "security.allowCookies",
 			"upload":           "security.allowUpload",
 			"networkIntercept": "security.allowNetworkIntercept",
 		} {
@@ -132,6 +133,7 @@ func BuildGuardsDownConfig(fc *config.FileConfig) (bool, error) {
 		{path: "security.allowMacro", value: "true"},
 		{path: "security.allowScreencast", value: "true"},
 		{path: "security.allowDownload", value: "true"},
+		{path: "security.allowCookies", value: "true"},
 		{path: "security.allowUpload", value: "true"},
 		{path: "security.allowNetworkIntercept", value: "true"},
 		{path: "security.attach.enabled", value: "true"},
@@ -208,6 +210,7 @@ type securityConfigValues struct {
 	AllowMacro            bool
 	AllowScreencast       bool
 	AllowDownload         bool
+	AllowCookies          bool
 	AllowNetworkIntercept bool
 	DownloadMaxBytes      int
 	AllowUpload           bool
@@ -242,6 +245,9 @@ func securityDefaultsSnapshot(fc *config.FileConfig) securityDefaultsState {
 	}
 	if fc.Security.AllowDownload != nil {
 		s.Security.AllowDownload = *fc.Security.AllowDownload
+	}
+	if fc.Security.AllowCookies != nil {
+		s.Security.AllowCookies = *fc.Security.AllowCookies
 	}
 	if fc.Security.AllowNetworkIntercept != nil {
 		s.Security.AllowNetworkIntercept = *fc.Security.AllowNetworkIntercept

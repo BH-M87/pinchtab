@@ -71,7 +71,7 @@ export const pinchtabToolSchema = {
   required: ["action"],
 };
 
-export const pinchtabToolDescription = `Browser control via Pinchtab. Actions:
+export const pinchtabToolDescription = `Browser control via PinchTab. Actions:
 - navigate: go to URL (url, tabId?, newTab?, blockImages?, timeout?)
 - snapshot: accessibility tree (filter?, format?, selector?, maxTokens?, depth?, diff?, tabId?)
 - click/type/press/fill/hover/scroll/select/focus: act on element (ref, text?, key?, value?, scrollY?, waitNav?, tabId?)

@@ -158,6 +158,7 @@ func applyGuardUp(cfg *config.FileConfig) {
 	f := false
 	cfg.Security.AllowEvaluate = &f
 	cfg.Security.AllowDownload = &f
+	cfg.Security.AllowCookies = &f
 	cfg.Security.AllowUpload = &f
 	cfg.Security.AllowMacro = &f
 	cfg.Security.AllowScreencast = &f
@@ -173,6 +174,7 @@ func applyGuardDown(cfg *config.FileConfig) {
 	t := true
 	cfg.Security.AllowEvaluate = &t
 	cfg.Security.AllowDownload = &t
+	cfg.Security.AllowCookies = &t
 	cfg.Security.AllowUpload = &t
 	cfg.Security.AllowMacro = &t
 	cfg.Security.AllowScreencast = &t

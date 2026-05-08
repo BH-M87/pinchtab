@@ -11,7 +11,7 @@ Start the PinchTab server (default port 9867).
 
 ```bash
 pinchtab server
-pinchtab server -y              # guards down (enables evaluate, macro, download)
+pinchtab server -y              # guards down (enables evaluate, macro, download, cookies)
 pinchtab server -H              # visible browser for debugging
 pinchtab server -yH             # both combined
 pinchtab server -e ./ext        # load browser extension
@@ -19,7 +19,7 @@ pinchtab server -e ./ext        # load browser extension
 
 | Flag | Short | Description |
 |------|-------|-------------|
-| `--yolo` | `-y` | Apply guards down preset (enables evaluate, macro, download) |
+| `--yolo` | `-y` | Apply guards down preset (enables evaluate, macro, download, cookies) |
 | `--headed` | `-H` | Start browser in headed (visible) mode |
 | `--extension <path>` | `-e` | Load browser extension (repeatable) |
 

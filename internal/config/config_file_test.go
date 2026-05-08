@@ -49,6 +49,9 @@ func TestDefaultFileConfig(t *testing.T) {
 	if fc.Security.AllowDownload == nil || *fc.Security.AllowDownload {
 		t.Errorf("DefaultFileConfig.Security.AllowDownload = %v, want explicit false", formatBoolPtr(fc.Security.AllowDownload))
 	}
+	if fc.Security.AllowCookies == nil || *fc.Security.AllowCookies {
+		t.Errorf("DefaultFileConfig.Security.AllowCookies = %v, want explicit false", formatBoolPtr(fc.Security.AllowCookies))
+	}
 	if len(fc.Security.DownloadAllowedDomains) != 0 {
 		t.Errorf("DefaultFileConfig.Security.DownloadAllowedDomains = %v, want empty list", fc.Security.DownloadAllowedDomains)
 	}
@@ -346,6 +349,9 @@ func TestDefaultFileConfigJSON(t *testing.T) {
 	}
 	if parsed.Security.AllowDownload == nil || *parsed.Security.AllowDownload {
 		t.Errorf("round-trip Security.AllowDownload = %v, want explicit false", formatBoolPtr(parsed.Security.AllowDownload))
+	}
+	if parsed.Security.AllowCookies == nil || *parsed.Security.AllowCookies {
+		t.Errorf("round-trip Security.AllowCookies = %v, want explicit false", formatBoolPtr(parsed.Security.AllowCookies))
 	}
 	if len(parsed.Security.DownloadAllowedDomains) != 0 {
 		t.Errorf("round-trip Security.DownloadAllowedDomains = %v, want empty list", parsed.Security.DownloadAllowedDomains)

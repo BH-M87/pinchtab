@@ -16,6 +16,7 @@ type legacyFileConfig struct {
 	AllowMacro        *bool  `json:"allowMacro,omitempty"`
 	AllowScreencast   *bool  `json:"allowScreencast,omitempty"`
 	AllowDownload     *bool  `json:"allowDownload,omitempty"`
+	AllowCookies      *bool  `json:"allowCookies,omitempty"`
 	AllowUpload       *bool  `json:"allowUpload,omitempty"`
 	AllowClipboard    *bool  `json:"allowClipboard,omitempty"`
 	StateDir          string `json:"stateDir"`
@@ -57,6 +58,7 @@ func convertLegacyConfig(lc *legacyFileConfig) *FileConfig {
 	fc.Security.AllowMacro = lc.AllowMacro
 	fc.Security.AllowScreencast = lc.AllowScreencast
 	fc.Security.AllowDownload = lc.AllowDownload
+	fc.Security.AllowCookies = lc.AllowCookies
 	fc.Security.AllowUpload = lc.AllowUpload
 	fc.Security.AllowClipboard = lc.AllowClipboard
 

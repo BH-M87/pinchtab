@@ -39,7 +39,7 @@ func TestApplyGuardsDownPreset(t *testing.T) {
 	if cfg.Token != "guarded-token" {
 		t.Fatalf("Token = %q, want existing token to remain", cfg.Token)
 	}
-	if !cfg.AllowEvaluate || !cfg.AllowMacro || !cfg.AllowScreencast || !cfg.AllowDownload || !cfg.AllowUpload {
+	if !cfg.AllowEvaluate || !cfg.AllowMacro || !cfg.AllowScreencast || !cfg.AllowDownload || !cfg.AllowCookies || !cfg.AllowUpload {
 		t.Fatalf("expected sensitive endpoints enabled, got %+v", cfg)
 	}
 	if !cfg.AttachEnabled {

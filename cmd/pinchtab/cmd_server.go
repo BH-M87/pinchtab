@@ -68,7 +68,7 @@ func init() {
 	serverCmd.GroupID = "primary"
 	serverCmd.Flags().StringArrayP("extension", "e", nil, "Load browser extension (repeatable)")
 	serverCmd.Flags().BoolP("headed", "H", false, "Start default instance in headed mode")
-	serverCmd.Flags().BoolP("yolo", "y", false, "Apply guards down preset (enables evaluate, macro, download)")
+	serverCmd.Flags().BoolP("yolo", "y", false, "Apply guards down preset (enables evaluate, macro, download, cookies)")
 	serverCmd.Flags().BoolP("verbose", "v", false, "Show full startup banner and logs")
 	serverCmd.Flags().BoolP("background", "b", false, "Spawn the server detached and return JSON with pid/url/token")
 	serverCmd.Flags().String("background-child", "", "Internal marker for background server ownership")

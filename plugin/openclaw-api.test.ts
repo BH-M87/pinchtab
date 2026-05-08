@@ -99,7 +99,7 @@ describe("OpenClaw plugin API contract", () => {
     const registered: Array<{ tool: AnyAgentTool; opts?: RegisteredToolOptions }> = [];
     const api = createTestPluginApi({
       id: "pinchtab",
-      name: "Pinchtab",
+      name: "PinchTab",
       pluginConfig: { registerBrowserTool: true },
       config: {
         plugins: {
@@ -134,7 +134,7 @@ describe("OpenClaw plugin API contract", () => {
     const names: string[] = [];
     const api = createTestPluginApi({
       id: "pinchtab",
-      name: "Pinchtab",
+      name: "PinchTab",
       pluginConfig: { registerBrowserTool: false },
       registerTool(tool) {
         const resolved = typeof tool === "function" ? tool(testToolContext) : tool;

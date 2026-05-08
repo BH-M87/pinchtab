@@ -248,5 +248,5 @@ export async function waitForInstanceReady(
     await new Promise((resolve) => setTimeout(resolve, instanceReadyRetryDelayMs));
   }
 
-  return { ok: false, error: `Timed out waiting for Pinchtab instance readiness: ${lastError}` };
+  return { ok: false, error: `Timed out waiting for PinchTab instance readiness: ${lastError}` };
 }

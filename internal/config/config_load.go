@@ -51,6 +51,7 @@ func Load() *RuntimeConfig {
 		AllowMacro:             false,
 		AllowScreencast:        false,
 		AllowDownload:          false,
+		AllowCookies:           false,
 		AllowNetworkIntercept:  false,
 		AllowedDomains:         append([]string(nil), defaultLocalAllowedDomains...),
 		DownloadAllowedDomains: nil,
@@ -278,6 +279,9 @@ func applyFileConfig(cfg *RuntimeConfig, fc *FileConfig) {
 	}
 	if fc.Security.AllowDownload != nil {
 		cfg.AllowDownload = *fc.Security.AllowDownload
+	}
+	if fc.Security.AllowCookies != nil {
+		cfg.AllowCookies = *fc.Security.AllowCookies
 	}
 	if fc.Security.AllowNetworkIntercept != nil {
 		cfg.AllowNetworkIntercept = *fc.Security.AllowNetworkIntercept

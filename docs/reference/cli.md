@@ -107,7 +107,7 @@ pinchtab server [flags]
 
 | Flag | Short | Purpose |
 | --- | --- | --- |
-| `--yolo` | `-y` | Apply guards down preset (enables evaluate, macro, download) |
+| `--yolo` | `-y` | Apply guards down preset (enables evaluate, macro, download, cookies) |
 | `--headed` | `-H` | Start browser instances in headed (visible) mode |
 | `--extension <path>` | `-e` | Load browser extension (repeatable) |
 

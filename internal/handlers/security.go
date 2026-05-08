@@ -21,6 +21,10 @@ func (h *Handlers) downloadEnabled() bool {
 	return h != nil && h.Config != nil && h.Config.AllowDownload
 }
 
+func (h *Handlers) cookiesEnabled() bool {
+	return h != nil && h.Config != nil && h.Config.AllowCookies
+}
+
 func (h *Handlers) uploadEnabled() bool {
 	return h != nil && h.Config != nil && h.Config.AllowUpload
 }
@@ -54,6 +58,12 @@ func (h *Handlers) endpointSecurityStates() map[string]endpointSecurityState {
 			Setting: "security.allowDownload",
 			Message: httpx.DisabledEndpointMessage("download", "security.allowDownload"),
 			Paths:   []string{"GET /download", "GET /tabs/{id}/download"},
+		},
+		"cookies": {
+			Enabled: h.cookiesEnabled(),
+			Setting: "security.allowCookies",
+			Message: httpx.DisabledEndpointMessage("cookies", "security.allowCookies"),
+			Paths:   []string{"GET /cookies", "POST /cookies", "DELETE /cookies", "GET /tabs/{id}/cookies", "POST /tabs/{id}/cookies", "DELETE /tabs/{id}/cookies"},
 		},
 		"upload": {
 			Enabled: h.uploadEnabled(),

@@ -260,7 +260,7 @@ func TestHandleTabActions_NoTab(t *testing.T) {
 }
 
 func TestHandleGetCookies_NoTab(t *testing.T) {
-	h := New(&failMockBridge{}, &config.RuntimeConfig{}, nil, nil, nil)
+	h := New(&failMockBridge{}, &config.RuntimeConfig{AllowCookies: true}, nil, nil, nil)
 
 	req := httptest.NewRequest("GET", "/cookies", nil)
 	w := httptest.NewRecorder()
@@ -273,7 +273,7 @@ func TestHandleGetCookies_NoTab(t *testing.T) {
 }
 
 func TestHandleSetCookies_EmptyURL(t *testing.T) {
-	h := New(&mockBridge{}, &config.RuntimeConfig{}, nil, nil, nil)
+	h := New(&mockBridge{}, &config.RuntimeConfig{AllowCookies: true}, nil, nil, nil)
 
 	body := `{"cookies": [{"name": "test", "value": "123"}]}`
 	req := httptest.NewRequest("POST", "/cookies", bytes.NewReader([]byte(body)))
@@ -296,7 +296,7 @@ func TestHandleSetCookies_EmptyURL(t *testing.T) {
 }
 
 func TestHandleSetCookies_EmptyCookies(t *testing.T) {
-	h := New(&mockBridge{}, &config.RuntimeConfig{}, nil, nil, nil)
+	h := New(&mockBridge{}, &config.RuntimeConfig{AllowCookies: true}, nil, nil, nil)
 
 	body := `{"url": "https://pinchtab.com", "cookies": []}`
 	req := httptest.NewRequest("POST", "/cookies", bytes.NewReader([]byte(body)))

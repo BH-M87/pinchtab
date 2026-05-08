@@ -93,6 +93,7 @@ func TestSetConfigValue_SecurityFields(t *testing.T) {
 		{"security.allowMacro", "1", func(fc *FileConfig) bool { return *fc.Security.AllowMacro == true }, false},
 		{"security.allowScreencast", "false", func(fc *FileConfig) bool { return *fc.Security.AllowScreencast == false }, false},
 		{"security.allowDownload", "on", func(fc *FileConfig) bool { return *fc.Security.AllowDownload == true }, false},
+		{"security.allowCookies", "yes", func(fc *FileConfig) bool { return *fc.Security.AllowCookies == true }, false},
 		{"security.downloadAllowedDomains", "pinchtab.com, *.pinchtab.com", func(fc *FileConfig) bool {
 			return len(fc.Security.DownloadAllowedDomains) == 2 &&
 				fc.Security.DownloadAllowedDomains[0] == "pinchtab.com" &&

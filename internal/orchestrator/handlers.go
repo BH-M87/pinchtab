@@ -20,6 +20,8 @@ func (o *Orchestrator) Allows(cap routes.Capability) bool {
 		return o.AllowsScreencast()
 	case routes.CapDownload:
 		return o.AllowsDownload()
+	case routes.CapCookies:
+		return o.AllowsCookies()
 	case routes.CapUpload:
 		return o.AllowsUpload()
 	case routes.CapStateExport:
@@ -97,6 +99,9 @@ func (o *Orchestrator) registerHandlers(mux *http.ServeMux, skipLaunch bool) {
 		case routes.CapDownload:
 			enabled = o.AllowsDownload()
 			feature, setting, code = "download", "security.allowDownload", "download_disabled"
+		case routes.CapCookies:
+			enabled = o.AllowsCookies()
+			feature, setting, code = "cookies", "security.allowCookies", "cookies_disabled"
 		case routes.CapUpload:
 			enabled = o.AllowsUpload()
 			feature, setting, code = "upload", "security.allowUpload", "upload_disabled"

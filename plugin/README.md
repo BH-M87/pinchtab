@@ -228,7 +228,7 @@ pinchtab({ action: "wait", text: "Welcome back", timeout: 120000 })
 - **Server lifecycle**: the plugin does not start PinchTab — run `pinchtab server` separately. If the server isn't reachable, the plugin returns a clear error pointing at the configured `baseUrl`. Once the server is up, the plugin briefly waits for instance/profile readiness (handles the "still booting" / `503` window).
 - **`evaluate`** is blocked by default (`allowEvaluate: false`) — enable only for trusted agents
 - **`downloads`** and **`uploads`** are blocked by default — enable only when the task requires file transfer
-- **Cookie access** exposes session credentials — do not log or expose to untrusted contexts
+- **Cookie access** exposes session credentials. Core cookie endpoints are blocked unless `security.allowCookies=true`; do not log or expose cookie values to untrusted contexts
 - **Network exports** may contain private URLs and auth tokens — omit `--body` for sensitive sessions; delete exports after use
 - **Challenge solving** (`/solve`) requires explicit user approval — do not call speculatively
 - **Session reuse**: when agents reuse human-authenticated sessions, use dedicated low-privilege profiles and confirm before account-changing actions

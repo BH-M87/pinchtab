@@ -350,6 +350,9 @@
         "allowDownload": {
           "$ref": "#/definitions/nullableBoolean"
         },
+        "allowCookies": {
+          "$ref": "#/definitions/nullableBoolean"
+        },
         "allowedDomains": {
           "$ref": "#/definitions/domainPatternArray"
         },

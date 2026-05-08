@@ -1,4 +1,4 @@
-# Pinchtab API Reference
+# PinchTab API Reference
 
 Base URL for all examples: `http://localhost:9867`
 
@@ -303,7 +303,7 @@ curl "/screenshot?raw=true&format=png" -o screenshot.png
 ## Evaluate JavaScript
 
 Use this sparingly. Prefer `text`, `snapshot`, and normal actions first.
-Default to read-only DOM inspection and avoid reading cookies, localStorage, or unrelated page secrets unless the user explicitly asks for that behavior.
+Default to read-only DOM inspection and avoid reading cookies, localStorage, or unrelated page secrets unless the user explicitly asks for that behavior. Cookie access is disabled by default and requires `security.allowCookies: true`.
 
 ```bash
 # CLI: pinchtab eval "document.title"
@@ -407,13 +407,18 @@ Locked tabs show `owner` and `lockedUntil` in `/tabs`. Returns 409 on conflict.
 
 ## Cookies
 
+Cookie values are session credentials. Cookie endpoints are disabled by default (`security.allowCookies: false`); enable them only for an explicitly approved cookie-inspection, cookie-injection, or cookie-clearing task. Do not log, copy, or send cookie values to untrusted contexts.
+
 ```bash
-# Get cookies for current page
+# Get cookies for current page (requires security.allowCookies=true)
 curl /cookies
 
-# Set cookies
+# Set cookies (requires security.allowCookies=true)
 curl -X POST /cookies -H 'Content-Type: application/json' \
   -d '{"url":"https://pinchtab.com","cookies":[{"name":"session","value":"abc123"}]}'
+
+# Clear cookies (requires security.allowCookies=true)
+curl -X DELETE /cookies
 ```
 
 ## Solve challenges

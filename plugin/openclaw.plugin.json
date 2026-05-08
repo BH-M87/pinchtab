@@ -1,7 +1,7 @@
 {
   "id": "pinchtab",
-  "name": "Pinchtab",
-  "description": "Browser control for AI agents via Pinchtab. Single tool, all actions: navigate, snapshot, click/type/press/fill/hover/scroll/select/focus, mouse-move/mouse-down/mouse-up/mouse-wheel, text, screenshot, evaluate, pdf.",
+  "name": "PinchTab",
+  "description": "Browser control for AI agents via PinchTab. Single tool, all actions: navigate, snapshot, click/type/press/fill/hover/scroll/select/focus, mouse-move/mouse-down/mouse-up/mouse-wheel, text, screenshot, evaluate, pdf.",
   "version": "0.3.0",
   "contracts": {
     "tools": ["pinchtab", "browser"]
@@ -16,7 +16,7 @@
     "properties": {
       "baseUrl": {
         "type": "string",
-        "description": "Pinchtab instance base URL",
+        "description": "PinchTab instance base URL",
         "default": "http://localhost:9867"
       },
       "token": {
@@ -88,7 +88,7 @@
       },
       "profiles": {
         "type": "object",
-        "description": "Profile name to Pinchtab instance/profile mapping",
+        "description": "Profile name to PinchTab instance/profile mapping",
         "additionalProperties": {
           "type": "object",
           "properties": {

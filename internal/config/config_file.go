@@ -121,6 +121,7 @@ func DefaultFileConfig() FileConfig {
 	allowMacro := false
 	allowScreencast := false
 	allowDownload := false
+	allowCookies := false
 	allowNetworkIntercept := false
 	downloadMaxBytes := DefaultDownloadMaxBytes
 	allowUpload := false
@@ -182,6 +183,7 @@ func DefaultFileConfig() FileConfig {
 			AllowMacro:             &allowMacro,
 			AllowScreencast:        &allowScreencast,
 			AllowDownload:          &allowDownload,
+			AllowCookies:           &allowCookies,
 			AllowNetworkIntercept:  &allowNetworkIntercept,
 			AllowedDomains:         append([]string(nil), defaultLocalAllowedDomains...),
 			DownloadAllowedDomains: []string{},

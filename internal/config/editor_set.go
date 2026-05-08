@@ -378,6 +378,8 @@ func setSecurityField(s *SecurityConfig, field, value string) error {
 		s.AllowScreencast = &b
 	case "allowDownload":
 		s.AllowDownload = &b
+	case "allowCookies":
+		s.AllowCookies = &b
 	case "allowUpload":
 		s.AllowUpload = &b
 	case "allowNetworkIntercept":

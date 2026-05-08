@@ -291,6 +291,7 @@ func isGuardsDownPosture(cfg *config.RuntimeConfig) bool {
 		cfg.AllowMacro &&
 		cfg.AllowScreencast &&
 		cfg.AllowDownload &&
+		cfg.AllowCookies &&
 		cfg.AllowUpload &&
 		cfg.AllowNetworkIntercept &&
 		cfg.AttachEnabled &&

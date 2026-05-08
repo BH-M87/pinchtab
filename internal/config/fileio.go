@@ -141,6 +141,9 @@ func loadLegacyFileConfig(data []byte) (*FileConfig, error) {
 	if legacy.Security.AllowDownload != nil {
 		fc.Security.AllowDownload = legacy.Security.AllowDownload
 	}
+	if legacy.Security.AllowCookies != nil {
+		fc.Security.AllowCookies = legacy.Security.AllowCookies
+	}
 	if legacy.Security.AllowUpload != nil {
 		fc.Security.AllowUpload = legacy.Security.AllowUpload
 	}

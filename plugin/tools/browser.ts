@@ -30,7 +30,7 @@ export const browserToolSchema = {
   required: ["action"],
 };
 
-export const browserToolDescription = `OpenClaw-compatible browser control (backed by Pinchtab).
+export const browserToolDescription = `OpenClaw-compatible browser control (backed by PinchTab).
 
 Actions:
 - navigate: go to URL (url, profile?, newTab?)

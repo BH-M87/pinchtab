@@ -60,6 +60,8 @@ When a session record contains explicit `grants`, PinchTab enforces them in midd
 
 The built-in grant groups are: `browse`, `network`, `media`, `cookies`, `clipboard`, `evaluate`, `storage`, `console`, `solve`, `tasks`, and `activity`.
 
+The `cookies` grant only authorizes session access to cookie routes; cookie operations still require the server-level `security.allowCookies` gate.
+
 That default is a convenience for trusted automation, not a sandbox. If you need hard isolation between agents or tenants, use separate PinchTab instances.
 
 ## CLI Usage

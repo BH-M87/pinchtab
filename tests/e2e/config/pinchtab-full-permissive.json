@@ -37,6 +37,7 @@
     "allowEvaluate": true,
     "allowDownload": true,
     "allowScreencast": true,
+    "allowCookies": true,
     "allowUpload": true,
     "allowStateExport": true,
     "allowNetworkIntercept": true,
