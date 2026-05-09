@@ -17,7 +17,7 @@ function isServerTokenPath(path: string): boolean {
 }
 
 type SessionResolution =
-  | { kind: "ok"; token: string }
+  | { kind: "ok"; sessionToken: string }
   | { kind: "no-agent" }
   | { kind: "error"; error: string };
 
@@ -33,7 +33,7 @@ async function ensurePinchtabSession(
   }
   if (forceRefresh) pinchtabSessionTokens.delete(agentId);
   const cached = pinchtabSessionTokens.get(agentId);
-  if (cached) return { kind: "ok", token: cached };
+  if (cached) return { kind: "ok", sessionToken: cached };
 
   const controller = new AbortController();
   const timeout = cfg.timeoutMs ?? cfg.timeout ?? 30000;
@@ -56,10 +56,10 @@ async function ensurePinchtabSession(
       };
     }
     const data = (await res.json().catch(() => null)) as { sessionToken?: string } | null;
-    const token = data?.sessionToken;
-    if (typeof token === "string" && token) {
-      pinchtabSessionTokens.set(agentId, token);
-      return { kind: "ok", token };
+    const sessionToken = data?.sessionToken;
+    if (typeof sessionToken === "string" && sessionToken) {
+      pinchtabSessionTokens.set(agentId, sessionToken);
+      return { kind: "ok", sessionToken };
     }
     return { kind: "error", error: `Pinchtab /sessions response missing sessionToken for agent ${agentId}` };
   } catch (err: any) {
@@ -79,13 +79,11 @@ export function clearPinchtabSessionCache(): void {
 }
 
 function buildRequestHeaders(
-  cfg: PluginConfig,
   context: PluginRuntimeContext | undefined,
-  authToken: string | undefined,
-  authScheme: "Bearer" | "Session",
+  authorizationValue: string | undefined,
 ): Record<string, string> {
   const headers: Record<string, string> = {};
-  if (authToken) headers["Authorization"] = `${authScheme} ${authToken}`;
+  if (authorizationValue) headers["Authorization"] = authorizationValue;
   if (context?.agentId) headers["X-OpenClaw-Agent-Id"] = context.agentId;
   if (context?.sessionId) headers["X-OpenClaw-Session-Id"] = context.sessionId;
   if (context?.sessionKey) headers["X-OpenClaw-Session-Key"] = context.sessionKey;
@@ -119,8 +117,7 @@ async function performPinchtabFetch(
 ): Promise<any> {
   const base = cfg.baseUrl as string;
   const url = `${base}${path}`;
-  let authToken = cfg.token;
-  let authScheme: "Bearer" | "Session" = "Bearer";
+  let authorizationValue = cfg.token ? `Bearer ${cfg.token}` : undefined;
 
   if (!isServerTokenPath(path)) {
     const resolution = await ensurePinchtabSession(cfg, context);
@@ -131,13 +128,12 @@ async function performPinchtabFetch(
       return { error: resolution.error };
     }
     if (resolution.kind === "ok") {
-      authToken = resolution.token;
-      authScheme = "Session";
+      authorizationValue = `Session ${resolution.sessionToken}`;
     }
     // kind === "no-agent": legitimate bearer use (no agent context, e.g. CLI smoke).
   }
 
-  const headers = buildRequestHeaders(cfg, context, authToken, authScheme);
+  const headers = buildRequestHeaders(context, authorizationValue);
   if (opts.body) headers["Content-Type"] = "application/json";
 
   const controller = new AbortController();
@@ -154,7 +150,7 @@ async function performPinchtabFetch(
 
     // Cached agent-session token may have been revoked or expired upstream; on
     // the first 401 we evict and retry once to recover without restarting.
-    if (res.status === 401 && authScheme === "Session" && !alreadyRetriedSession) {
+    if (res.status === 401 && authorizationValue?.startsWith("Session ") && !alreadyRetriedSession) {
       evictPinchtabSession(context?.agentId);
       // Drain body to free the connection.
       await res.text().catch(() => "");
