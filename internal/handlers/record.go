@@ -532,6 +532,8 @@ func encodeFFmpegToFile(ctx context.Context, tmpDir, outputPath, format string, 
 	args = append(args, "-fs", strconv.Itoa(maxOutputBytes))
 	args = append(args, outputPath)
 
+	// #nosec G204 -- ffmpeg executable is fixed and args are built from validated,
+	// bounded internal values (format/fps/scale/output path), not shell-expanded input.
 	cmd := exec.CommandContext(ctx, "ffmpeg", args...)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
