@@ -101,7 +101,7 @@ func TestRecorderStart_AlreadyRecording(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	_, _, _ = rec.stop("")
+	_, _ = rec.stop("", "")
 }
 
 func TestHandleRecordStop_NoRecording(t *testing.T) {
@@ -167,7 +167,7 @@ func TestRecorderStatus_Active(t *testing.T) {
 		t.Errorf("expected tabId=tab1, got %q", status.TabID)
 	}
 
-	_, _, _ = rec.stop("")
+	_, _ = rec.stop("", "")
 }
 
 func TestHandleRecordStart_ClampsInputs(t *testing.T) {
@@ -204,12 +204,12 @@ func TestRecorderStop_OwnerMismatch(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, _, err := rec.stop("agent-2")
+	_, err := rec.stop("agent-2", "")
 	if err == nil || err.Error() != "recording owned by another session" {
 		t.Errorf("expected owner mismatch error, got %v", err)
 	}
 
-	_, _, _ = rec.stop("agent-1")
+	_, _ = rec.stop("agent-1", "")
 }
 
 func TestRecorderStop_OwnerMatch(t *testing.T) {
@@ -222,7 +222,7 @@ func TestRecorderStop_OwnerMatch(t *testing.T) {
 	}
 
 	// Gets past owner check; fails with "no frames captured" which is expected
-	_, _, err := rec.stop("agent-1")
+	_, err := rec.stop("agent-1", "")
 	if err == nil || err.Error() != "no frames captured" {
 		t.Errorf("expected 'no frames captured' error, got %v", err)
 	}
@@ -237,7 +237,7 @@ func TestRecorderStop_NoOwnerCanStopAnonymous(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, _, err := rec.stop("any-agent")
+	_, err := rec.stop("any-agent", "")
 	if err == nil || err.Error() != "no frames captured" {
 		t.Errorf("expected 'no frames captured', got %v", err)
 	}
@@ -301,7 +301,7 @@ func TestRecorderStatus_IdleAfterStop(t *testing.T) {
 		t.Fatalf("start: %v", err)
 	}
 
-	_, _, _ = rec.stop("")
+	_, _ = rec.stop("", "")
 
 	status := rec.status()
 	if status.Active {

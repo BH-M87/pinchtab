@@ -57,16 +57,33 @@ func RecordStop(client *http.Client, base, token string) {
 		outFile = fmt.Sprintf("recording-%s.gif", time.Now().Format("20060102-150405"))
 	}
 
-	data := apiclient.DoPostRaw(client, base, token, "/record/stop", map[string]any{})
-	if data == nil {
+	abs, err := filepath.Abs(outFile)
+	if err == nil {
+		outFile = abs
+	}
+
+	raw := apiclient.DoPostRaw(client, base, token, "/record/stop", map[string]any{
+		"outputPath": outFile,
+	})
+	clearRecordingState()
+
+	if raw == nil {
 		return
 	}
 
-	if err := os.WriteFile(outFile, data, 0600); err != nil {
-		cli.Fatal("Write failed: %v", err)
+	var result struct {
+		Status string `json:"status"`
+		Path   string `json:"path"`
+		Frames int    `json:"frames"`
+		Hint   string `json:"hint"`
 	}
-	clearRecordingState()
-	fmt.Println(cli.StyleStdout(cli.SuccessStyle, fmt.Sprintf("Saved %s (%d bytes)", outFile, len(data))))
+	if err := json.Unmarshal(raw, &result); err != nil {
+		fmt.Println(cli.StyleStdout(cli.SuccessStyle, fmt.Sprintf("Encoding → %s", outFile)))
+		return
+	}
+
+	fmt.Println(cli.StyleStdout(cli.SuccessStyle,
+		fmt.Sprintf("Encoding %d frames → %s (use `record status` to check progress)", result.Frames, result.Path)))
 }
 
 func RecordStatus(client *http.Client, base, token string) {

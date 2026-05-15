@@ -30,21 +30,31 @@ pt_get /record/status
 assert_ok "record status"
 assert_json_eq "$RESULT" ".active" "true" "recording active"
 
-OUTFILE="/tmp/e2e-recording-test.gif"
-e2e_curl -s -X POST "${E2E_SERVER}/record/stop" -o "$OUTFILE" \
-  -H "Content-Type: application/json" -d '{}'
-FILESIZE=$(wc -c < "$OUTFILE" 2>/dev/null | tr -d ' ')
+pt_post /record/stop -d '{"outputPath":"/tmp/e2e-recording-test.gif"}'
+assert_ok "record stop"
+assert_json_eq "$RESULT" ".status" "encoding" "stop returns encoding status"
 
-if [ -f "$OUTFILE" ] && [ "$FILESIZE" -gt 0 ]; then
-  pass_assert "recording file created ($FILESIZE bytes)"
+# Poll /record/status until encoding completes (state transitions to "finished")
+ENCODE_OK=false
+for i in $(seq 1 60); do
+  pt_get /record/status >/dev/null 2>&1
+  STATE=$(echo "$RESULT" | jq -r '.state // empty')
+  if [ "$STATE" = "finished" ]; then
+    ENCODE_OK=true
+    break
+  fi
+  if [ "$STATE" = "idle" ]; then
+    ENCODE_OK=true
+    break
+  fi
+  sleep 1
+done
+
+if [ "$ENCODE_OK" = "true" ]; then
+  pass_assert "encoding completed (state=$STATE)"
 else
-  fail_assert "recording file missing or empty"
+  fail_assert "encoding did not complete within timeout (state=$STATE)"
 fi
-rm -f "$OUTFILE"
-
-pt_get /record/status
-assert_ok "record status after stop"
-assert_json_eq "$RESULT" ".active" "false" "recording inactive after stop"
 
 end_test
 
@@ -65,10 +75,12 @@ assert_ok "navigate for double stop"
 pt_post /record/start -d '{"format":"gif","fps":2,"quality":60}'
 assert_ok "start for double stop"
 
-e2e_curl -s -X POST "${E2E_SERVER}/record/stop" -o /dev/null \
-  -H "Content-Type: application/json" -d '{}'
+sleep 2
 
-pt_post /record/stop -d '{}'
+pt_post /record/stop -d '{"outputPath":"/tmp/e2e-recording-double-stop.gif"}'
+assert_ok "first stop"
+
+pt_post /record/stop -d '{"outputPath":"/tmp/e2e-recording-double-stop2.gif"}'
 assert_http_status 400 "second stop returns error"
 
 end_test

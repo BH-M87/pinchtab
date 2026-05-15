@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/mark3labs/mcp-go/mcp"
 )
@@ -14,10 +13,6 @@ import (
 // maxRecordFileBytes caps the output file written by record_stop to prevent
 // unbounded disk writes (matches the server-side maxOutputBytes).
 const maxRecordFileBytes = 256 << 20 // 256 MiB
-
-// recordStopTimeout matches the server-side encodeTimeout (2m) plus the
-// write-deadline extension (30s), with headroom for network transfer.
-const recordStopTimeout = 3 * time.Minute
 
 func handleRecordStart(c *Client) func(context.Context, mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	return func(ctx context.Context, r mcp.CallToolRequest) (*mcp.CallToolResult, error) {
@@ -66,8 +61,6 @@ func handleRecordStart(c *Client) func(context.Context, mcp.CallToolRequest) (*m
 }
 
 func handleRecordStop(c *Client) func(context.Context, mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	long := c.withTimeout(recordStopTimeout)
-
 	return func(ctx context.Context, r mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		file := optString(r, "file")
 		if file == "" {
@@ -76,42 +69,25 @@ func handleRecordStop(c *Client) func(context.Context, mcp.CallToolRequest) (*mc
 
 		dest, pathErr := safeRecordPath(file)
 		if pathErr != nil {
-			// Path is invalid, but a recording may be active server-side.
-			// Stop it so we don't leave it dangling.
-			stopBody, stopCode, stopErr := long.PostStream(ctx, "/record/stop", map[string]any{})
-			if stopErr == nil {
-				_ = stopBody.Close()
-			}
+			_, _, stopErr := c.Post(ctx, "/record/stop", map[string]any{})
 			msg := fmt.Sprintf("invalid output path: %v", pathErr)
 			if stopErr != nil {
 				msg += fmt.Sprintf(" (also failed to stop recording: %v)", stopErr)
-			} else if stopCode >= 400 {
-				msg += fmt.Sprintf(" (recording stop returned HTTP %d)", stopCode)
 			}
 			return mcp.NewToolResultError(msg), nil
 		}
 
-		body, code, err := long.PostStream(ctx, "/record/stop", map[string]any{})
+		body, code, err := c.Post(ctx, "/record/stop", map[string]any{
+			"outputPath": dest,
+		})
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
-		defer func() { _ = body.Close() }()
-
 		if code >= 400 {
-			errBody, _ := io.ReadAll(io.LimitReader(body, 10<<20))
-			return resultFromBytes(errBody, code)
+			return resultFromBytes(body, code)
 		}
 
-		n, err := streamToFile(dest, body)
-		if err != nil {
-			return mcp.NewToolResultError(fmt.Sprintf("write file: %v", err)), nil
-		}
-
-		return jsonResult(map[string]any{
-			"status": "saved",
-			"file":   dest,
-			"bytes":  n,
-		})
+		return resultFromBytes(body, code)
 	}
 }
 

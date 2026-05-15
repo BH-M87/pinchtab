@@ -114,20 +114,10 @@ func (o *Orchestrator) proxyToInstance(w http.ResponseWriter, r *http.Request) {
 	o.proxyToURL(w, r, targetURL)
 }
 
-// proxyClientForPath returns the HTTP client to use for the given request path.
-// Encoding-heavy routes like /record/stop get a longer timeout.
-func (o *Orchestrator) proxyClientForPath(path string) *http.Client {
-	if strings.HasSuffix(path, "/record/stop") {
-		return o.longClient
-	}
-	return o.client
-}
-
 // proxyToURL proxies an HTTP request to the given target URL.
 func (o *Orchestrator) proxyToURL(w http.ResponseWriter, r *http.Request, targetURL *url.URL) {
-	client := o.proxyClientForPath(r.URL.Path)
 	iproxy.Forward(w, r, targetURL, iproxy.Options{
-		Client: client,
+		Client: o.client,
 		AllowedURL: func(u *url.URL) bool {
 			return o.proxyTargetInstance(u) != nil
 		},

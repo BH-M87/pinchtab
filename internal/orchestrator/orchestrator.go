@@ -45,7 +45,6 @@ type Orchestrator struct {
 	runner         HostRunner
 	mu             sync.RWMutex
 	client         *http.Client
-	longClient     *http.Client // for routes that can take minutes (e.g. record/stop encoding)
 	childAuthToken string
 	allowEvaluate  bool
 	internalToken  string
@@ -171,7 +170,6 @@ func NewOrchestratorWithRunner(baseDir string, runner HostRunner) *Orchestrator 
 		// - Short timeout (<5s) would break first-request scenarios
 		// See: internal/orchestrator/health.go (monitor), internal/bridge/init.go (InitChrome)
 		client:         &http.Client{Timeout: 60 * time.Second},
-		longClient:     &http.Client{Timeout: 3 * time.Minute},
 		childAuthToken: "",
 		allowEvaluate:  false,
 		internalToken:  generateInternalToken(),

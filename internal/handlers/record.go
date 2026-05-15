@@ -84,6 +84,8 @@ type RecordingStatus struct {
 	Frames     int     `json:"frames"`
 	TabID      string  `json:"tabId,omitempty"`
 	FPS        int     `json:"fps,omitempty"`
+	OutputPath string  `json:"outputPath,omitempty"`
+	Error      string  `json:"error,omitempty"`
 }
 
 type recorder struct {
@@ -103,13 +105,16 @@ type recorder struct {
 	startTime  time.Time
 	stopCh     chan struct{}
 	doneCh     chan struct{}
+	outputPath string // final destination set by stop(); encoding writes here
+	encodeErr  error  // set by background encode goroutine
 }
 
 func (rec *recorder) start(tabCtx context.Context, tabID, owner, format string, fps, quality int, scale float64) error {
 	rec.mu.Lock()
 	defer rec.mu.Unlock()
 
-	if rec.state == stateAborted {
+	if rec.state == stateAborted || rec.state == stateFinished {
+		rec.cleanup()
 		rec.state = stateIdle
 		rec.stopReason = ""
 	}
@@ -144,23 +149,31 @@ func (rec *recorder) start(tabCtx context.Context, tabID, owner, format string, 
 	return nil
 }
 
-func (rec *recorder) stop(callerOwner string) ([]byte, string, error) {
+func (rec *recorder) stop(callerOwner, outputPath string) (RecordStopResult, error) {
 	rec.mu.Lock()
 	if rec.state == stateIdle || rec.state == stateAborted {
 		rec.mu.Unlock()
-		return nil, "", fmt.Errorf("no active recording")
+		return RecordStopResult{}, fmt.Errorf("no active recording")
 	}
-	if rec.state == stateStopping || rec.state == stateEncoding || rec.state == stateFinished {
-		doneCh := rec.doneCh
+	if rec.state == stateEncoding {
+		r := RecordStopResult{
+			OutputPath: rec.outputPath,
+			Format:     rec.format,
+			Frames:     rec.frameNum,
+		}
 		rec.mu.Unlock()
-		<-doneCh
-		return nil, "", fmt.Errorf("no active recording")
+		return r, fmt.Errorf("already encoding to %s — use record status to check progress", rec.outputPath)
+	}
+	if rec.state == stateStopping || rec.state == stateFinished {
+		rec.mu.Unlock()
+		return RecordStopResult{}, fmt.Errorf("no active recording")
 	}
 	if rec.owner != "" && callerOwner != rec.owner {
 		rec.mu.Unlock()
-		return nil, "", fmt.Errorf("recording owned by another session")
+		return RecordStopResult{}, fmt.Errorf("recording owned by another session")
 	}
 	rec.state = stateStopping
+	rec.outputPath = outputPath
 	close(rec.stopCh)
 	doneCh := rec.doneCh
 	format := rec.format
@@ -172,29 +185,70 @@ func (rec *recorder) stop(callerOwner string) ([]byte, string, error) {
 
 	<-doneCh
 
+	result := RecordStopResult{
+		OutputPath: outputPath,
+		Format:     format,
+		Frames:     frameNum,
+	}
+
+	if frameNum == 0 {
+		rec.mu.Lock()
+		rec.state = stateFinished
+		rec.cleanup()
+		rec.state = stateIdle
+		rec.mu.Unlock()
+		return result, fmt.Errorf("no frames captured")
+	}
+
 	rec.mu.Lock()
 	rec.state = stateEncoding
 	rec.mu.Unlock()
 
-	var data []byte
-	var encErr error
-	if frameNum > 0 {
-		data, encErr = encode(tmpDir, format, fps, scale)
-	} else {
-		encErr = fmt.Errorf("no frames captured")
-	}
+	go func() {
+		tmpOut := outputPath + ".encoding.tmp"
+		encErr := encodeToFile(tmpDir, tmpOut, format, fps, scale)
+		if encErr == nil {
+			encErr = os.Rename(tmpOut, outputPath)
+			if encErr != nil {
+				_ = os.Remove(tmpOut)
+			}
+		} else {
+			_ = os.Remove(tmpOut)
+		}
 
-	rec.mu.Lock()
-	defer rec.mu.Unlock()
-	rec.state = stateFinished
-	rec.cleanup()
-	rec.state = stateIdle
-	rec.stopReason = ""
+		rec.mu.Lock()
+		rec.encodeErr = encErr
+		rec.state = stateFinished
+		if rec.tabCancel != nil {
+			rec.tabCancel()
+			rec.tabCancel = nil
+		}
+		if rec.tmpDir != "" {
+			_ = os.RemoveAll(rec.tmpDir)
+			rec.tmpDir = ""
+		}
+		rec.mu.Unlock()
 
-	if encErr != nil {
-		return nil, "", encErr
-	}
-	return data, format, nil
+		if encErr != nil {
+			slog.Error("recording encode failed", "path", outputPath, "err", encErr)
+		} else {
+			info, _ := os.Stat(outputPath)
+			size := int64(0)
+			if info != nil {
+				size = info.Size()
+			}
+			slog.Info("recording saved", "path", outputPath, "bytes", size)
+		}
+	}()
+
+	return result, nil
+}
+
+// RecordStopResult is returned immediately by stop(); encoding continues in the background.
+type RecordStopResult struct {
+	OutputPath string
+	Format     string
+	Frames     int
 }
 
 // cleanup releases resources but does not change state — callers set the
@@ -209,6 +263,8 @@ func (rec *recorder) cleanup() {
 	}
 	rec.tmpDir = ""
 	rec.owner = ""
+	rec.outputPath = ""
+	rec.encodeErr = nil
 }
 
 func (rec *recorder) status() RecordingStatus {
@@ -217,6 +273,18 @@ func (rec *recorder) status() RecordingStatus {
 
 	if rec.state == stateIdle {
 		return RecordingStatus{State: stateIdle.String()}
+	}
+	if rec.state == stateFinished {
+		s := RecordingStatus{
+			State:      stateFinished.String(),
+			Format:     rec.format,
+			Frames:     rec.frameNum,
+			OutputPath: rec.outputPath,
+		}
+		if rec.encodeErr != nil {
+			s.Error = rec.encodeErr.Error()
+		}
+		return s
 	}
 	return RecordingStatus{
 		Active:     rec.state != stateAborted,
@@ -227,6 +295,7 @@ func (rec *recorder) status() RecordingStatus {
 		Frames:     rec.frameNum,
 		TabID:      rec.tabID,
 		FPS:        rec.fps,
+		OutputPath: rec.outputPath,
 	}
 }
 
@@ -333,26 +402,26 @@ func (rec *recorder) scheduleLimitCleanup() {
 	}()
 }
 
-func encode(tmpDir, format string, fps int, scale float64) ([]byte, error) {
+func encodeToFile(tmpDir, outputPath, format string, fps int, scale float64) error {
 	ctx, cancel := context.WithTimeout(context.Background(), encodeTimeout)
 	defer cancel()
 
 	switch format {
 	case "gif":
-		return encodeGIF(tmpDir, fps, scale)
+		return encodeGIFToFile(tmpDir, outputPath, fps, scale)
 	case "webm":
-		return encodeFFmpeg(ctx, tmpDir, format, fps, scale, "libvpx", "-crf", "10", "-b:v", "1M")
+		return encodeFFmpegToFile(ctx, tmpDir, outputPath, format, fps, scale, "libvpx", "-crf", "10", "-b:v", "1M")
 	case "mp4":
-		return encodeFFmpeg(ctx, tmpDir, format, fps, scale, "libx264", "-pix_fmt", "yuv420p", "-crf", "23")
+		return encodeFFmpegToFile(ctx, tmpDir, outputPath, format, fps, scale, "libx264", "-pix_fmt", "yuv420p", "-crf", "23")
 	default:
-		return nil, fmt.Errorf("unsupported format: %s", format)
+		return fmt.Errorf("unsupported format: %s", format)
 	}
 }
 
-func encodeGIF(tmpDir string, fps int, scale float64) ([]byte, error) {
+func encodeGIFToFile(tmpDir, outputPath string, fps int, scale float64) error {
 	files, err := filepath.Glob(filepath.Join(tmpDir, "frame_*.jpg"))
 	if err != nil {
-		return nil, err
+		return err
 	}
 	sort.Strings(files)
 
@@ -365,10 +434,9 @@ func encodeGIF(tmpDir string, fps int, scale float64) ([]byte, error) {
 		delay = 1
 	}
 
-	outPath := filepath.Join(tmpDir, "output.gif")
-	outFile, err := os.Create(outPath)
+	outFile, err := os.Create(outputPath)
 	if err != nil {
-		return nil, fmt.Errorf("create gif output: %w", err)
+		return fmt.Errorf("create gif output: %w", err)
 	}
 	defer func() { _ = outFile.Close() }()
 
@@ -411,21 +479,17 @@ func encodeGIF(tmpDir string, fps int, scale float64) ([]byte, error) {
 	}
 
 	if len(g.Image) == 0 {
-		return nil, fmt.Errorf("no frames to encode")
+		return fmt.Errorf("no frames to encode")
 	}
 
 	lw := &limitedWriter{w: outFile, max: int64(maxOutputBytes)}
 	if err := gif.EncodeAll(lw, g); err != nil {
-		return nil, fmt.Errorf("gif encode: %w", err)
+		return fmt.Errorf("gif encode: %w", err)
 	}
-	_ = outFile.Close()
-
-	return readFileCapped(outPath, maxOutputBytes)
+	return outFile.Close()
 }
 
-func encodeFFmpeg(ctx context.Context, tmpDir, format string, fps int, scale float64, codec string, extraArgs ...string) ([]byte, error) {
-	outFile := filepath.Join(tmpDir, "output."+format)
-
+func encodeFFmpegToFile(ctx context.Context, tmpDir, outputPath, format string, fps int, scale float64, codec string, extraArgs ...string) error {
 	args := []string{
 		"-y",
 		"-framerate", strconv.Itoa(fps),
@@ -440,27 +504,15 @@ func encodeFFmpeg(ctx context.Context, tmpDir, format string, fps int, scale flo
 	args = append(args, "-c:v", codec)
 	args = append(args, extraArgs...)
 	args = append(args, "-fs", strconv.Itoa(maxOutputBytes))
-	args = append(args, outFile)
+	args = append(args, outputPath)
 
 	cmd := exec.CommandContext(ctx, "ffmpeg", args...)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("ffmpeg encode: %w\n%s", err, stderr.String())
+		return fmt.Errorf("ffmpeg encode: %w\n%s", err, stderr.String())
 	}
-
-	return readFileCapped(outFile, maxOutputBytes)
-}
-
-func readFileCapped(path string, maxBytes int) ([]byte, error) {
-	info, err := os.Stat(path)
-	if err != nil {
-		return nil, err
-	}
-	if info.Size() > int64(maxBytes) {
-		return nil, fmt.Errorf("encoded output too large (%d bytes, max %d)", info.Size(), maxBytes)
-	}
-	return os.ReadFile(path)
+	return nil
 }
 
 func scaleImage(src image.Image, scale float64) image.Image {
@@ -584,38 +636,36 @@ func (h *Handlers) HandleRecordStart(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// HandleRecordStop stops the active recording and returns the encoded binary
-// file directly (not JSON). The Content-Type is set to the appropriate media
-// type (image/gif, video/webm, video/mp4). This endpoint is fundamentally
-// different from most other API endpoints which return JSON.
+// HandleRecordStop stops the active recording. Encoding runs in the background;
+// this endpoint returns immediately with a JSON status so callers are not
+// blocked. Use /record/status to check encoding progress.
 func (h *Handlers) HandleRecordStop(w http.ResponseWriter, r *http.Request) {
-	// Encoding can exceed the default WriteTimeout; extend the deadline.
-	rc := http.NewResponseController(w)
-	_ = rc.SetWriteDeadline(time.Now().Add(encodeTimeout + 30*time.Second))
+	var req struct {
+		OutputPath string `json:"outputPath"`
+	}
+	_ = httpx.DecodeJSONBody(w, r, 0, &req)
+
+	if req.OutputPath == "" {
+		httpx.ErrorCode(w, 400, "missing_output_path", "outputPath is required — the encoded file will be written there", false, nil)
+		return
+	}
 
 	owner := authenticatedOwner(r)
-	data, format, err := h.recorder.stop(owner)
+	result, err := h.recorder.stop(owner, req.OutputPath)
 	if err != nil {
 		httpx.ErrorCode(w, 400, "recording_error", err.Error(), false, nil)
 		return
 	}
 
-	contentType := "application/octet-stream"
-	switch format {
-	case "gif":
-		contentType = "image/gif"
-	case "webm":
-		contentType = "video/webm"
-	case "mp4":
-		contentType = "video/mp4"
-	}
-
-	slog.Info("recording stopped", "format", format, "size", len(data))
-	w.Header().Set("Content-Type", contentType)
-	w.Header().Set("Content-Length", strconv.Itoa(len(data)))
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=recording.%s", format))
-	w.WriteHeader(200)
-	_, _ = w.Write(data)
+	slog.Info("recording stopped, encoding in background",
+		"format", result.Format, "frames", result.Frames, "path", result.OutputPath)
+	httpx.JSON(w, 200, map[string]any{
+		"status": "encoding",
+		"path":   result.OutputPath,
+		"format": result.Format,
+		"frames": result.Frames,
+		"hint":   fmt.Sprintf("Encoding %d frames to %s. Use `record status` to check progress — the file will appear at the path once encoding completes.", result.Frames, result.OutputPath),
+	})
 }
 
 // HandleRecordStatus returns the current recording status.
