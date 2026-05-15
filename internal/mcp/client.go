@@ -33,6 +33,17 @@ func NewClient(baseURL, token string) *Client {
 	}
 }
 
+// withTimeout returns a shallow copy of the Client whose HTTPClient uses the
+// given timeout. The original Transport is preserved.
+func (c *Client) withTimeout(d time.Duration) *Client {
+	clone := *c
+	clone.HTTPClient = &http.Client{
+		Timeout:   d,
+		Transport: c.HTTPClient.Transport,
+	}
+	return &clone
+}
+
 func (c *Client) url(path string) string {
 	return c.BaseURL + path
 }
