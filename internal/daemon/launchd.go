@@ -61,6 +61,9 @@ func (m *launchdManager) Start() (string, error) {
 }
 
 func (m *launchdManager) Restart() (string, error) {
+	if err := ensureDaemonLogDir(m.env); err != nil {
+		return "", err
+	}
 	if _, err := runCommand(m.runner, "launchctl", "kickstart", "-k", launchdDomainTarget(m.env)+"/"+pinchtabLaunchdLabel); err != nil {
 		return "", err
 	}

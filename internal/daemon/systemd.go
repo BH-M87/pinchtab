@@ -54,6 +54,9 @@ func (m *systemdUserManager) Start() (string, error) {
 }
 
 func (m *systemdUserManager) Restart() (string, error) {
+	if err := ensureDaemonLogDir(m.env); err != nil {
+		return "", err
+	}
 	if _, err := runCommand(m.runner, "systemctl", "--user", "restart", pinchtabDaemonUnitName); err != nil {
 		return "", err
 	}
