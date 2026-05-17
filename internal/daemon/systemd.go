@@ -115,10 +115,11 @@ func (m *systemdUserManager) Pid() (string, error) {
 
 func (m *systemdUserManager) Logs(n int) (string, error) {
 	logPath := daemonStderrLogPath(m.env)
-	if _, err := os.Stat(logPath); err != nil {
-		return "No logs found at " + logPath, nil
+	if info, err := os.Stat(logPath); err == nil && info.Size() > 0 {
+		return runCommand(m.runner, "tail", "-n", fmt.Sprintf("%d", n), logPath)
 	}
-	return runCommand(m.runner, "tail", "-n", fmt.Sprintf("%d", n), logPath)
+
+	return runCommand(m.runner, "journalctl", "--user", "-u", pinchtabDaemonUnitName, "-n", fmt.Sprintf("%d", n), "--no-pager")
 }
 
 func (m *systemdUserManager) ManualInstructions() string {

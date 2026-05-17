@@ -92,3 +92,42 @@ func TestLaunchdManagerPreflightRequiresGUIDomain(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
+
+func TestLaunchdManagerLogsFallsBackToLegacyPath(t *testing.T) {
+	root := t.TempDir()
+	legacyLogPath := "/tmp/pinchtab.err.log"
+	legacyContent, legacyErr := os.ReadFile(legacyLogPath)
+	hadLegacy := legacyErr == nil
+	if err := os.WriteFile(legacyLogPath, []byte("legacy launchd log\n"), 0644); err != nil {
+		t.Fatalf("write legacy log: %v", err)
+	}
+	t.Cleanup(func() {
+		if hadLegacy {
+			_ = os.WriteFile(legacyLogPath, legacyContent, 0644)
+		} else {
+			_ = os.Remove(legacyLogPath)
+		}
+	})
+
+	runner := &fakeCommandRunner{
+		outputs: map[string]string{
+			"tail -n 20 /tmp/pinchtab.err.log": "tail output",
+		},
+	}
+	manager := &launchdManager{
+		env:    environment{homeDir: root, osName: "darwin"},
+		runner: runner,
+	}
+
+	output, err := manager.Logs(20)
+	if err != nil {
+		t.Fatalf("Logs returned error: %v", err)
+	}
+	if output != "tail output" {
+		t.Fatalf("unexpected logs output: %q", output)
+	}
+	expected := "tail -n 20 /tmp/pinchtab.err.log"
+	if len(runner.calls) != 1 || runner.calls[0] != expected {
+		t.Fatalf("tail call = %v, want %q", runner.calls, expected)
+	}
+}

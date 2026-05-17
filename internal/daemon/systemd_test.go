@@ -82,3 +82,28 @@ func TestSystemdUserManagerPreflightRequiresUserSession(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
+
+func TestSystemdUserManagerLogsFallsBackToJournalctl(t *testing.T) {
+	root := t.TempDir()
+	runner := &fakeCommandRunner{
+		outputs: map[string]string{
+			"journalctl --user -u pinchtab.service -n 15 --no-pager": "journalctl output",
+		},
+	}
+	manager := &systemdUserManager{
+		env:    environment{homeDir: root, osName: "linux"},
+		runner: runner,
+	}
+
+	output, err := manager.Logs(15)
+	if err != nil {
+		t.Fatalf("Logs returned error: %v", err)
+	}
+	if output != "journalctl output" {
+		t.Fatalf("unexpected logs output: %q", output)
+	}
+	expected := "journalctl --user -u pinchtab.service -n 15 --no-pager"
+	if len(runner.calls) != 1 || runner.calls[0] != expected {
+		t.Fatalf("journalctl call = %v, want %q", runner.calls, expected)
+	}
+}

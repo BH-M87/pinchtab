@@ -121,10 +121,16 @@ func (m *launchdManager) Pid() (string, error) {
 
 func (m *launchdManager) Logs(n int) (string, error) {
 	logPath := daemonStderrLogPath(m.env)
-	if _, err := os.Stat(logPath); err != nil {
-		return "No logs found at " + logPath, nil
+	if info, err := os.Stat(logPath); err == nil && info.Size() > 0 {
+		return runCommand(m.runner, "tail", "-n", fmt.Sprintf("%d", n), logPath)
 	}
-	return runCommand(m.runner, "tail", "-n", fmt.Sprintf("%d", n), logPath)
+
+	legacyLogPath := "/tmp/pinchtab.err.log"
+	if _, err := os.Stat(legacyLogPath); err == nil {
+		return runCommand(m.runner, "tail", "-n", fmt.Sprintf("%d", n), legacyLogPath)
+	}
+
+	return "No logs found at " + logPath, nil
 }
 
 func (m *launchdManager) ManualInstructions() string {
