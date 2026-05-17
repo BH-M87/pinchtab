@@ -31,7 +31,10 @@ func (m *launchdManager) Install(configPath string) (string, error) {
 	if err := os.MkdirAll(filepath.Dir(m.ServicePath()), 0755); err != nil {
 		return "", fmt.Errorf("create LaunchAgents directory: %w", err)
 	}
-	if err := os.WriteFile(m.ServicePath(), []byte(renderLaunchdPlist(m.env.execPath, configPath)), 0644); err != nil {
+	if err := ensureDaemonLogDir(m.env); err != nil {
+		return "", err
+	}
+	if err := os.WriteFile(m.ServicePath(), []byte(renderLaunchdPlist(m.env.execPath, configPath, m.env.homeDir, daemonStdoutLogPath(m.env), daemonStderrLogPath(m.env))), 0644); err != nil {
 		return "", fmt.Errorf("write launchd plist: %w", err)
 	}
 	_, _ = runCommand(m.runner, "launchctl", "bootout", launchdDomainTarget(m.env), m.ServicePath())
@@ -45,6 +48,9 @@ func (m *launchdManager) Install(configPath string) (string, error) {
 }
 
 func (m *launchdManager) Start() (string, error) {
+	if err := ensureDaemonLogDir(m.env); err != nil {
+		return "", err
+	}
 	if _, err := runCommand(m.runner, "launchctl", "bootstrap", launchdDomainTarget(m.env), m.ServicePath()); err != nil && !strings.Contains(err.Error(), "already bootstrapped") {
 		return "", err
 	}
@@ -111,7 +117,7 @@ func (m *launchdManager) Pid() (string, error) {
 }
 
 func (m *launchdManager) Logs(n int) (string, error) {
-	logPath := "/tmp/pinchtab.err.log"
+	logPath := daemonStderrLogPath(m.env)
 	if _, err := os.Stat(logPath); err != nil {
 		return "No logs found at " + logPath, nil
 	}
@@ -144,7 +150,7 @@ func isLaunchdIgnorableError(err error) bool {
 		strings.Contains(msg, "already bootstrapped")
 }
 
-func renderLaunchdPlist(execPath, configPath string) string {
+func renderLaunchdPlist(execPath, configPath, homeDir, stdoutPath, stderrPath string) string {
 	return fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -156,6 +162,8 @@ func renderLaunchdPlist(execPath, configPath string) string {
     <string>%s</string>
     <string>server</string>
   </array>
+  <key>WorkingDirectory</key>
+  <string>%s</string>
   <key>RunAtLoad</key>
   <true/>
   <key>KeepAlive</key>
@@ -164,14 +172,16 @@ func renderLaunchdPlist(execPath, configPath string) string {
   <integer>10</integer>
   <key>EnvironmentVariables</key>
   <dict>
+    <key>HOME</key>
+    <string>%s</string>
     <key>PINCHTAB_CONFIG</key>
     <string>%s</string>
   </dict>
   <key>StandardOutPath</key>
-  <string>/tmp/pinchtab.out.log</string>
+  <string>%s</string>
   <key>StandardErrorPath</key>
-  <string>/tmp/pinchtab.err.log</string>
+  <string>%s</string>
 </dict>
 </plist>
-`, pinchtabLaunchdLabel, execPath, configPath)
+	`, pinchtabLaunchdLabel, execPath, homeDir, homeDir, configPath, stdoutPath, stderrPath)
 }

@@ -3,6 +3,7 @@ package daemon
 import (
 	"errors"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -39,8 +40,27 @@ func TestLaunchdManagerInstallWritesPlistAndBootstrapsAgent(t *testing.T) {
 	if !strings.Contains(content, "<string>/Applications/Pinchtab.app/Contents/MacOS/pinchtab</string>") {
 		t.Fatalf("expected executable path in plist: %s", content)
 	}
+	if !strings.Contains(content, "<key>WorkingDirectory</key>") || !strings.Contains(content, "<string>"+root+"</string>") {
+		t.Fatalf("expected working directory in plist: %s", content)
+	}
+	if !strings.Contains(content, "<key>HOME</key>") || !strings.Contains(content, "<string>"+root+"</string>") {
+		t.Fatalf("expected HOME environment in plist: %s", content)
+	}
 	if !strings.Contains(content, "<string>/tmp/pinchtab/config.json</string>") {
 		t.Fatalf("expected config path in plist: %s", content)
+	}
+	stdoutLogPath := filepath.Join(root, ".pinchtab", "logs", "daemon.out.log")
+	stderrLogPath := filepath.Join(root, ".pinchtab", "logs", "daemon.err.log")
+	if !strings.Contains(content, "<string>"+stdoutLogPath+"</string>") {
+		t.Fatalf("expected stdout log path in plist: %s", content)
+	}
+	if !strings.Contains(content, "<string>"+stderrLogPath+"</string>") {
+		t.Fatalf("expected stderr log path in plist: %s", content)
+	}
+	if info, err := os.Stat(filepath.Join(root, ".pinchtab", "logs")); err != nil {
+		t.Fatalf("expected log directory to exist: %v", err)
+	} else if !info.IsDir() {
+		t.Fatalf("expected log directory, got file")
 	}
 
 	expectedCalls := []string{

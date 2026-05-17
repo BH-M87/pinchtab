@@ -40,6 +40,19 @@ func TestSystemdUserManagerInstallWritesUnitAndEnablesService(t *testing.T) {
 	if !strings.Contains(content, `Environment="PINCHTAB_CONFIG=/tmp/pinchtab/config.json"`) {
 		t.Fatalf("expected config env in unit content: %s", content)
 	}
+	stdoutLogPath := filepath.Join(root, ".pinchtab", "logs", "daemon.out.log")
+	stderrLogPath := filepath.Join(root, ".pinchtab", "logs", "daemon.err.log")
+	if !strings.Contains(content, "StandardOutput=append:"+stdoutLogPath) {
+		t.Fatalf("expected stdout log path in unit content: %s", content)
+	}
+	if !strings.Contains(content, "StandardError=append:"+stderrLogPath) {
+		t.Fatalf("expected stderr log path in unit content: %s", content)
+	}
+	if info, err := os.Stat(filepath.Join(root, ".pinchtab", "logs")); err != nil {
+		t.Fatalf("expected log directory to exist: %v", err)
+	} else if !info.IsDir() {
+		t.Fatalf("expected log directory, got file")
+	}
 
 	expectedCalls := []string{
 		"systemctl --user daemon-reload",

@@ -137,3 +137,26 @@ func systemdUserConfigHome(env environment) string {
 	}
 	return filepath.Join(env.homeDir, ".config")
 }
+
+func pinchtabStateHome(env environment) string {
+	return filepath.Join(env.homeDir, ".pinchtab")
+}
+
+func daemonLogDir(env environment) string {
+	return filepath.Join(pinchtabStateHome(env), "logs")
+}
+
+func daemonStdoutLogPath(env environment) string {
+	return filepath.Join(daemonLogDir(env), "daemon.out.log")
+}
+
+func daemonStderrLogPath(env environment) string {
+	return filepath.Join(daemonLogDir(env), "daemon.err.log")
+}
+
+func ensureDaemonLogDir(env environment) error {
+	if err := os.MkdirAll(daemonLogDir(env), 0755); err != nil {
+		return fmt.Errorf("create daemon log directory: %w", err)
+	}
+	return nil
+}
