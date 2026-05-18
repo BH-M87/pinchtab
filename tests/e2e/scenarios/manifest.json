@@ -35,6 +35,9 @@
       "ready": ["E2E_SERVER", "E2E_FULL_SERVER"],
       "tags": ["network", "route", "interception", "smoke"]
     },
+    "api/secrets-extended.sh": {
+      "tags": ["actions", "secrets", "credentials"]
+    },
     "cli/actions-basic.sh": {
       "tags": ["actions", "pr"]
     },

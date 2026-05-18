@@ -3,9 +3,18 @@ package bridge
 import (
 	"context"
 	"fmt"
+	"unicode/utf8"
 
 	"github.com/chromedp/chromedp"
 )
+
+func textEntryResult(kind, text string) map[string]any {
+	result := map[string]any{
+		kind:  true,
+		"len": utf8.RuneCountInString(text),
+	}
+	return result
+}
 
 func (b *Bridge) actionType(ctx context.Context, req ActionRequest) (map[string]any, error) {
 	if req.Text == "" {
@@ -15,26 +24,26 @@ func (b *Bridge) actionType(ctx context.Context, req ActionRequest) (map[string]
 		return b.actionHumanizedType(ctx, req)
 	}
 	if req.Selector != "" {
-		return map[string]any{"typed": req.Text}, chromedp.Run(ctx,
+		return textEntryResult("typed", req.Text), chromedp.Run(ctx,
 			chromedp.Click(req.Selector, chromedp.ByQuery),
 			chromedp.SendKeys(req.Selector, req.Text, chromedp.ByQuery),
 		)
 	}
 	if req.NodeID > 0 {
-		return map[string]any{"typed": req.Text}, TypeByNodeID(ctx, req.NodeID, req.Text)
+		return textEntryResult("typed", req.Text), TypeByNodeID(ctx, req.NodeID, req.Text)
 	}
 	return nil, fmt.Errorf("need selector or ref")
 }
 
 func (b *Bridge) actionFill(ctx context.Context, req ActionRequest) (map[string]any, error) {
 	if req.Selector != "" {
-		return map[string]any{"filled": req.Text}, chromedp.Run(ctx, chromedp.SetValue(req.Selector, req.Text, chromedp.ByQuery))
+		return textEntryResult("filled", req.Text), chromedp.Run(ctx, chromedp.SetValue(req.Selector, req.Text, chromedp.ByQuery))
 	}
 	if req.NodeID > 0 {
 		if err := FillByNodeID(ctx, req.NodeID, req.Text); err != nil {
 			return nil, err
 		}
-		result := map[string]any{"filled": req.Text}
+		result := textEntryResult("filled", req.Text)
 		if actual, err := ReadInputValue(ctx, req.NodeID); err == nil && req.Text != "" && actual != req.Text {
 			result["warning"] = "fill may not have been picked up by the page (e.g. React controlled input); try 'type' instead"
 		}
@@ -76,7 +85,9 @@ func (b *Bridge) actionHumanizedType(ctx context.Context, req ActionRequest) (ma
 		return nil, err
 	}
 
-	return map[string]any{"typed": req.Text, "human": true}, nil
+	result := textEntryResult("typed", req.Text)
+	result["human"] = true
+	return result, nil
 }
 
 // keyboardTypeThreshold is the character count above which we switch from
@@ -145,7 +156,7 @@ func (b *Bridge) keyboardTypePerChar(ctx context.Context, text string) (map[stri
 	if err != nil {
 		return nil, err
 	}
-	return map[string]any{"typed": text}, nil
+	return textEntryResult("typed", text), nil
 }
 
 // keyboardTypeBatchedEdgeChars is how many characters to type with real
@@ -189,7 +200,9 @@ func (b *Bridge) keyboardTypeBatched(ctx context.Context, text string) (map[stri
 		return nil, err
 	}
 
-	return map[string]any{"typed": text, "batched": true}, nil
+	result := textEntryResult("typed", text)
+	result["batched"] = true
+	return result, nil
 }
 
 func (b *Bridge) actionKeyboardInsert(ctx context.Context, req ActionRequest) (map[string]any, error) {
@@ -204,7 +217,7 @@ func (b *Bridge) actionKeyboardInsert(ctx context.Context, req ActionRequest) (m
 	if err != nil {
 		return nil, err
 	}
-	return map[string]any{"inserted": req.Text}, nil
+	return textEntryResult("inserted", req.Text), nil
 }
 
 func (b *Bridge) actionKeyDown(ctx context.Context, req ActionRequest) (map[string]any, error) {

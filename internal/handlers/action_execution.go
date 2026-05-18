@@ -110,7 +110,7 @@ func (h *Handlers) executeLiteAction(ctx context.Context, req bridge.ActionReque
 		if err := h.Router.Lite().Type(ctx, req.TabID, req.Ref, text); err != nil {
 			return nil, "lite", err
 		}
-		return map[string]any{"typed": text}, "lite", nil
+		return map[string]any{"typed": true, "len": len([]rune(text))}, "lite", nil
 	default:
 		return nil, "lite", fmt.Errorf("%w: %s", engine.ErrLiteNotSupported, req.Kind)
 	}

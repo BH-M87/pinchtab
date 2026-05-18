@@ -131,7 +131,8 @@ pinchtab fill e3 "user@example.com"
 {
   "success": true,
   "result": {
-    "filled": "user@example.com"
+    "filled": true,
+    "len": 16
   }
 }
 ```
