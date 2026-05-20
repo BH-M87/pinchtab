@@ -59,3 +59,5 @@ Read this index first, then read the relevant group files.
 - `group-42.md` — Toast Notifications
 - `group-43.md` — Staff Directory (Content Discovery)
 - `group-44.md` — Multi-Step Wizard (DOM Mutation)
+- `group-45.md` — Element Attributes & State Inspection
+- `group-46.md` — Tab Lifecycle
